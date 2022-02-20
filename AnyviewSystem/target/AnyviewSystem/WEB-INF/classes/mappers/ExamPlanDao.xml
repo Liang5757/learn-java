@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.ExamPlanDao">
+
+	<resultMap id="ExamPlanResultMap" type="cn.youyitech.anyview.system.entity.ExamPlan">
+		<id property="epId" column="EPID" />
+		<result property="epName" column="EPName" />
+		<result property="tId" column="TID" />
+		<result property="cId" column="CID" />
+		<result property="courseId" column="CourseID" />
+		<result property="vId" column="VID" />
+		<result property="duration" column="Duration" />
+		<result property="startTime" column="StartTime" />
+		<result property="kind" column="Kind" />
+		<result property="examStatus" column="ExamStatus" />
+		<result property="operation" column="Operation" />
+		<result property="doneTime" column="DoneTime" />
+		<result property="created_person" column="CreatePerson" />
+		<result property="created_date" column="CreateTime" />
+		<result property="update_person" column="UpdatePerson" />
+		<result property="update_date" column="UpdateTime" />
+		<result property="enabled" column="Enabled" />
+		
+		<association property="teacher" column="TID" javaType="Teacher"
+			select="cn.youyitech.anyview.system.dao.TeacherDao.find">
+			<id property="id" column="TID" />
+		</association>
+		
+		<association property="classSystem" column="CID" javaType="ClassEntity"
+			select="cn.youyitech.anyview.system.dao.ClassDao.find">
+			<id property="id" column="CID" />
+		</association>
+		
+		<association property="course" column="CourseID" javaType="Course"
+			select="cn.youyitech.anyview.system.dao.CourseDao.find">
+			<id property="id" column="CourseID" />
+		</association>
+		
+		<association property="workingTable" column="VID" javaType="WorkingTable"
+			select="cn.youyitech.anyview.system.dao.WorkingTableDao.find">
+			<id property="id" column="VID" />
+		</association>
+		
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		EPID ,EPName ,TID ,CID ,CourseID ,VID ,Duration ,StartTime,Kind,ExamStatus,Operation,DoneTime
+		,CreatePerson,CreateTime,UpdatePerson,UpdateTime,Enabled
+	</sql>
+
+	<sql id="base_value_column">
+		#{epId} ,#{epName} ,#{tId},#{cId}, #{courseId},#{vId} ,#{duration} ,#{startTime},#{kind}
+		,#{examStatus},#{operation},#{doneTime},#{created_person} ,#{created_date},#{update_person},#{update_date},#{enabled} 
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		<if test="epId != null and epId != ''">
+			AND EXAMPLANTABLE.EPID = #{epId}
+		</if>
+		<if test="epName != null and epName != ''">
+			AND EXAMPLANTABLE.EPName =
+			#{epName,jdbcType=VARCHAR}
+		</if>
+		<if test="tId != null and tId != ''">
+			AND EXAMPLANTABLE.TID = #{tId}
+		</if>
+		<if test="cId != null and cId != ''">
+			AND EXAMPLANTABLE.CID = #{cId}
+		</if>
+		<if test="courseId != null and courseId != ''">
+			AND EXAMPLANTABLE.CourseID = #{courseId}
+		</if>
+		<if test="vId != null and vId != ''">
+			AND EXAMPLANTABLE.VID = #{vId}
+		</if>
+		<if test="duration != null and duration != ''">
+			AND EXAMPLANTABLE.Duration = #{duration}
+		</if>
+		<if test="startTime != null and startTime != ''">
+			AND EXAMPLANTABLE.StartTime = #{startTime}
+		</if>
+		<if test="kind != null and kind != ''">
+			AND EXAMPLANTABLE.Kind = #{kind}
+		</if>
+		<if test="examStatus != null and examStatus != ''">
+			AND EXAMPLANTABLE.ExamStatus = #{examStatus}
+		</if>
+		<if test="operation != null and operation != ''">
+			AND EXAMPLANTABLE.Operation = #{operation}
+		</if>
+		<if test="doneTime != null and doneTime != ''">
+			AND EXAMPLANTABLE.DoneTime = #{doneTime}
+		</if>
+	</sql>
+
+	<sql id="set_column">
+		<if test="epId != null">
+			EPID = #{epId},
+		</if>
+		<if test="epName != null and epName != ''">
+			EPName = #{epName,jdbcType=VARCHAR},
+		</if>
+		<if test="tId != null">
+			TID = #{tId},
+		</if>
+		<if test="cId != null">
+			CID = #{cId},
+		</if>
+		<if test="courseId != null">
+			CourseID = #{courseId},
+		</if>
+		<if test="vId != null">
+			VID = #{vId},
+		</if>
+		<if test="duration != null">
+			Duration = #{duration},
+		</if>
+		<if test="startTime != null and startTime != ''">
+			StartTime = #{startTime},
+		</if>
+		<if test="kind != null">
+			Kind = #{kind},
+		</if>
+		<if test="examStatus != null">
+			ExamStatus = #{examStatus},
+		</if>
+		<if test="operation != null">
+			Operation = #{operation},
+		</if>
+		<if test="doneTime != null">
+			DoneTime = #{doneTime},
+		</if>
+		<if test="update_person != null">
+			UpdatePerson = #{update_person},
+		</if>
+		<if test="update_date != null">
+			UpdateTime = #{update_date},
+		</if>
+	</sql>
+
+
+	<select id="find" resultMap="ExamPlanResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM EXAMPLANTABLE
+		WHERE Enabled=1 and EPID=#{epId}
+	</select>
+
+
+	<select id="findAll" resultMap="ExamPlanResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM EXAMPLANTABLE 
+		WHERE Enabled=1 
+	</select>
+	
+	<select id="findTotal" resultMap="ExamPlanResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM EXAMPLANTABLE
+	</select>
+	
+	<select id="findByAttribute" parameterType="cn.youyitech.anyview.system.entity.ExamPlan" 
+			resultMap="ExamPlanResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM EXAMPLANTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.ExamPlan">
+		INSERT INTO EXAMPLANTABLE
+		(
+		<include refid="base_column" />
+		)
+		VALUES (
+		<include refid="base_value_column" />
+		)
+	</insert>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.ExamPlan">
+		UPDATE EXAMPLANTABLE
+		<set>
+			<if test="startTime == null">
+				StartTime = #{startTime},
+			</if>
+			<include refid="set_column" />
+		</set>
+		WHERE EPID = #{epId}
+	</update>
+
+	<delete id="delete">
+		UPDATE EXAMPLANTABLE
+		set Enabled=0
+		WHERE EPID = #{epId}
+	</delete>
+
+	<delete id="deleteAll">
+		UPDATE EXAMPLANTABLE
+		set Enabled=0
+		WHERE EPID IN
+		<foreach item="epId" index="index" collection="ids"
+			open="(" separator="," close=")">
+			#{epId}
+		</foreach>
+	</delete>
+
+	<select id="findByParams" resultMap="ExamPlanResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM EXAMPLANTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByPage" resultMap="ExamPlanResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM EXAMPLANTABLE
+		<where>
+			Enabled=1
+			<if test="teacherId!=null and teacherId!=''">
+			and TID = #{teacherId}
+			</if>
+			<if test="epName!=null and epName!=''">
+			and EPName like concat('%',#{epName},'%')
+			</if>
+		</where>
+	</select>
+
+</mapper> 

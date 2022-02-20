@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xmlns:task="http://www.springframework.org/schema/task"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-4.1.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+	http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+"
+	   default-lazy-init="true">
+
+	<context:property-placeholder location="classpath*:/application.config.properties"
+								  ignore-resource-not-found="true" ignore-unresolvable="true"/>
+
+	<context:component-scan base-package="cn.youyitech.anyview.system" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+
+	<!-- =========================================================
+         Shiro Spring-specific integration
+         ========================================================= -->
+
+	<!-- Enable Shiro Annotations for Spring-configured beans.  Only run after
+         the lifecycleBeanProcessor has run: -->
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property ref="securityManager" name="securityManager"/>
+	</bean>
+
+
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="org.apache.shiro.authz.UnauthorizedException">/admin/common/unauthorized</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+		  depends-on="lifecycleBeanPostProcessor"/>
+
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<bean id="executeTimeInterceptor" class="cn.youyitech.anyview.system.interceptor.ExecuteTimeInterceptor"/>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/admin/**"/>
+			<mvc:exclude-mapping path="/api/**"/>
+			<bean id="webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
+				<property name="cacheSeconds" value="0"/>
+			</bean>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/admin/**"/>
+			<mvc:exclude-mapping path="/api/**"/>
+			<bean id="listInterceptor" class="cn.youyitech.anyview.system.interceptor.ListInterceptor"/>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<bean id="logInterceptor" class="cn.youyitech.anyview.system.interceptor.LogInterceptor"/>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/admin/**"/>
+			<mvc:exclude-mapping path="/api/**"/>
+			<mvc:exclude-mapping path="/constant/**"/>
+			<bean id="tokenInterceptor" class="cn.youyitech.anyview.system.interceptor.TokenInterceptor"/>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/api/**"/>
+			<mvc:exclude-mapping path="/constant/**"/>
+			<mvc:exclude-mapping path="/admin/**"/>
+			<bean id="authenticationInterceptor"
+				  class="cn.youyitech.anyview.system.interceptor.AuthenticationInterceptor"/>
+		</mvc:interceptor>
+	</mvc:interceptors>
+
+	<mvc:annotation-driven/>
+
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="favorPathExtension" value="true"/>
+		<property name="mediaTypes">
+			<map>
+				<entry key="json" value="application/json"/>
+				<entry key="jsonp" value="application/javascript"/>
+				<entry key="jhtml" value="text/html"/>
+			</map>
+		</property>
+		<property name="defaultViews">
+			<list>
+				<bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
+			</list>
+		</property>
+		<property name="defaultContentType" value="text/html"/>
+	</bean>
+
+	<bean id="viewResolver"
+		  class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="contentType" value="text/html; charset=UTF-8"/>
+		<property name="suffix" value="${template.suffix}"/>
+	</bean>
+
+	<bean id="multipartResolver"
+		  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8"/>
+	</bean>
+
+	<bean id="exceptionResolver"
+		  class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="defaultErrorView" value="admin/common/error"/>
+	</bean>
+
+	<!-- 注入spring定时器 -->
+	<bean id="schedulTask" class="cn.youyitech.anyview.system.utils.SchedulTask"></bean>
+
+	<task:scheduled-tasks>
+		<task:scheduled ref="schedulTask" method="task" cron="0 0/1 * * * ?"/>
+	</task:scheduled-tasks>
+
+	<!-- 自动扫描的包名 -->
+	<context:component-scan base-package="cn.youyitech.anyview.system.utils"/>
+
+</beans>

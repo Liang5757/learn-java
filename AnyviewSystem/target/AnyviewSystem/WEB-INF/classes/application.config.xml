@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<framework>
+	<!-- 基础配置 -->
+	
+	<!--<setting name="uploadPath" value="C:/Program Files/apache-tomcat-8.0.50-windows-x64/apache-tomcat-8.0.50/webapps/AnyviewSystem" />-->
+	 <setting name="uploadPath" value="/usr/tomcat/apache-tomcat-8.5.46/webapps/AnyviewSystem" />
+	<!--<setting name="uploadPath" value="/opt/apache-tomcat-9.0.26/webapps/AnyviewSystem" /> -->
+	<!--<setting name="uploadPath" value="/usr/tomcat/apache-tomcat-8.5.46/webapps/AnyviewSystem" /> -->
+	
+	<setting name="siteName" value="AnyviewSystem管理后台" />
+	<setting name="siteUrl" value="http://127.0.0.1:10081/AnyviewSystem" />
+	<setting name="logo" value="http://127.0.0.1:10081/AnyviewSystem/resources/admin/images/logo.jpg" />
+	<setting name="contact" value="Kenny.W.Zhang" />
+	<setting name="phone" value="13560362469" />
+	<setting name="address" value="广州市黄埔区科学大道72号绿地国际创客中心2楼A区" />
+	<setting name="email" value="metronic@framework.com" />
+	<!-- <setting name="email" value="kenny.w.zhang@youyitech.cn" />  -->
+	<setting name="certtext" value="粤ICP备0000001号" />
+	<setting name="accountLockCount" value="5" />
+	<setting name="accountLockTime" value="10" />
+	<setting name="uploadMaxSize" value="10" />
+	<setting name="uploadImageExtension" value="jpg,jpeg,bmp,gif,png" />
+	<setting name="uploadFlashExtension" value="swf,flv" />
+	<setting name="uploadMediaExtension" value="swf,flv,mp3,wav,avi,rm,rmvb" />
+	<setting name="uploadFileExtension" value="zip,rar,7z,doc,docx,xls,xlsx,ppt,pptx" />
+	<setting name="imageUploadPath" value="/upload/image/${.now?string('yyyyMM')}/" />
+	<setting name="flashUploadPath" value="/upload/flash/${.now?string('yyyyMM')}/" />
+	<setting name="mediaUploadPath" value="/upload/media/${.now?string('yyyyMM')}/" />
+	<setting name="fileUploadPath" value="/upload/file/${.now?string('yyyyMM')}/" />
+	<setting name="qrCodeImagePath" value="/upload/qrcode/${.now?string('yyyyMM')}/" />
+	<setting name="priceScale" value="2"/>
+	<setting name="priceRoundType" value="roundHalfUp"/>
+	<setting name="currencySign" value="￥"/>
+	<setting name="currencyUnit" value="元"/>
+	
+	
+	<setting name="smtpFromMail" value="anyview@youyitech.cn"/>
+	<setting name="smtpHost" value="smtp.mxhichina.com"/>
+	<setting name="smtpPort" value="465"/>
+	<setting name="smtpUsername" value="anyview@youyitech.cn"/>
+	<setting name="smtpPassword" value="Anyview1215"/>
+	
+	
+	
+	<setting name="cookiePath" value="/" />
+	<setting name="cookieDomain" value="" />
+	<setting name="accountLockTypes" value="admin"/>
+	<setting name="captchaTypes" value="adminLogin,other"/>
+	<setting name="isDevelopmentEnabled" value="true"/>
+	  
+	<!-- 资源静态化 -->
+	<template id="adminCommonJs" type="page" name="admin_common_js" 
+		templatePath="/admin/js/common.ftl" staticPath="/resources/js/admin/common.js" />
+	
+	<!-- 邮件测试 -->
+	<template id="testMail" type="mail" name="邮件测试" templatePath="/admin/setting/mail.ftl" />
+	
+	<!-- 接口 -->
+	<api id="main" logo="fa fa-gears" name="接口文档" version="2.0" 
+		author="youyitech java development team" description="描述信息" baseUrl="http://127.0.0.1:10081/manage/api"/>
+	
+</framework>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.youyitech.anyview.system.dao.CourseDao">
+	<resultMap type="cn.youyitech.anyview.system.entity.Course"
+		id="CourseEntity">
+		<id property="id" column="CourseID" />
+		<result property="id" column="CourseID" />
+		<result property="courseName" column="CourseName" />
+		<result property="collegeId" column="CeID" />
+		<result property="isDelete" column="Enabled" />
+		<result property="courseCreater" column="Creater" />
+		<result property="courseUpdater" column="Updater" />
+		<result property="courseUpdateTime" column="UpdateTime" />
+		<result property="courseCreateTime" column="CreateTime" />
+		<association property="college" column="CeID"
+			javaType="cn.youyitech.anyview.system.entity.College"
+			select="cn.youyitech.anyview.system.dao.CollegeDao.findColleageAndSchoolById">
+			<id property="id" column="CeID" />
+		</association>
+	</resultMap>
+
+	<!-- 查询专业 -->
+	<select id="findByPage" parameterType="cn.youyitech.anyview.system.entity.Course"
+		resultMap="CourseEntity">
+		select a.*,c.CeName,u.UnName from CourseTable a
+		inner join CollegeTable c on c.CeID = a.CeID
+		inner join UniversityTable u on c.UnID = u.UnID
+		where a.Enabled=1 and c.Enabled=1 and u.Enabled=1
+		<if test="courseName != null and courseName != ''">
+			and a.CourseName like concat('%',#{courseName},'%')
+		</if>
+		<if test="collegeName != null and collegeName != ''">
+			AND c.CeName like concat
+			("%",#{collegeName,jdbcType=VARCHAR},"%")
+		</if>
+		<if test="schoolName != null and schoolName != ''">
+			AND u.UnName like concat
+			("%",#{schoolName,jdbcType=VARCHAR},"%")
+		</if>
+		<if test="id != null and id != ''">
+			and a.CourseID=#{id}
+		</if>
+	</select>
+
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.Course">
+		insert into CourseTable
+		(CeID,CourseName,Updater,CreateTime,Creater,UpdateTime)
+		values(#{collegeId},#{courseName},#{courseUpdater},now(),#{courseCreater},now());
+	</insert>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.Course">
+		update CourseTable set
+		CeID=#{collegeId},CourseName=#{courseName},
+		Updater=#{courseUpdater},UpdateTime=now() where
+		CourseID=#{id}
+	</update>
+
+	<update id="delete" parameterType="Long">
+		update CourseTable set
+		Enabled=0
+		where
+		CourseID =#{id}
+	</update>
+
+	<select id="find" resultMap="CourseEntity">
+		select *from CourseTable where
+		Enabled=1 and
+		CourseID=#{id}
+	</select>
+
+	<select id="findNotIdList" resultMap="CourseEntity"
+		parameterType="cn.youyitech.anyview.system.entity.Course">
+		select * from CourseTable where Enabled=1 and CeID
+		=#{collegeId} and CourseID not in (#{id})
+	</select>
+	
+	<select id="findByWork" resultMap="CourseEntity">
+		select * from CourseTable
+		where
+		Enabled=1 and
+		CourseID=#{id}
+	</select>
+
+	<select id="findByIdMany" resultMap="CourseEntity"
+		parameterType="int">
+		select * from CourseTable where Enabled=1 and CeID =
+		#{collegeId}
+	</select>
+
+	<select id="findByCourseName" resultMap="CourseEntity"
+		parameterType="String">
+		select * from CourseTable where Enabled=1 and CourseName
+		=
+		#{courseName}
+	</select>
+
+	<select id="findAll" resultMap="CourseEntity">
+		select *from CourseTable where
+		Enabled=1
+	</select>
+
+	<select id="findByParams" resultMap="CourseEntity">
+		select *from CourseTable where
+		Enabled=1 and
+		CourseName=#{courseName}
+		<if test="id != null and id != ''">
+			and CourseID=#{id}
+		</if>
+	</select>
+</mapper>

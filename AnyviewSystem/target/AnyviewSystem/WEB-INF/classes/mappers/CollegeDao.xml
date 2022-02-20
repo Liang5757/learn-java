@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.youyitech.anyview.system.dao.CollegeDao">
+	<resultMap type="cn.youyitech.anyview.system.entity.College"
+		id="CollegeResult">
+		<id property="id" column="CeID" />
+		<result property="id" column="CeID" />
+		<result property="collegeName" column="CeName" />
+		<result property="schoolId" column="UnID" />
+		<result property="isDelete" column="Enabled" />
+		<result property="collegeCreateTime" column="CreateTime" />
+		<result property="collegeUpdateTime" column="UpdateTime" />
+		<result property="collegeUpdater" column="Updater" />
+		<result property="collegeCreater" column="Creater" />
+		<!-- 一对一，找到对应的学校 -->
+		<association property="school" column="UnID"
+			javaType="cn.youyitech.anyview.system.entity.School" select="cn.youyitech.anyview.system.dao.SchoolDao.findById">
+			<id property="id" column="UnID" />
+		</association>
+		<!-- 一对多，找出该学院中的所有专业 fType:集合里面的数据类型 column="id" 与关联表有关系的字段名 -->
+		<collection property="collegeMajorList" column="CeID"
+			javaType="java.util.ArrayList" ofType="cn.youyitech.anyview.system.entity.Major"
+			select="cn.youyitech.anyview.system.dao.MajorDao.findByIdMany">
+		</collection>
+		<collection property="collegeCourseList" column="CeID"
+			javaType="java.util.ArrayList" ofType="cn.youyitech.anyview.system.entity.Course"
+			select="cn.youyitech.anyview.system.dao.CourseDao.findByIdMany">
+		</collection>
+		<collection property="collegeTeacherList" column="CeID"
+			javaType="java.util.ArrayList" ofType="cn.youyitech.anyview.system.entity.Teacher"
+			select="cn.youyitech.anyview.system.dao.TeacherDao.findByIdMany">
+		</collection>
+	</resultMap>
+
+	<resultMap type="cn.youyitech.anyview.system.entity.College"
+		id="CollegeEntity">
+		<id property="id" column="CeID" />
+		<result property="id" column="CeID" />
+		<result property="collegeName" column="CeName" />
+		<result property="schoolId" column="UnID" />
+		<result property="isDelete" column="Enabled" />
+		<result property="collegeCreateTime" column="CreateTime" />
+		<result property="collegeUpdateTime" column="UpdateTime" />
+		<result property="collegeUpdater" column="Updater" />
+		<result property="collegeCreater" column="Creater" />
+		<association property="school" column="UnID"
+			javaType="cn.youyitech.anyview.system.entity.School" select="cn.youyitech.anyview.system.dao.SchoolDao.findById">
+			<id property="id" column="UnID" />
+		</association>
+	</resultMap>
+	
+	<resultMap type="cn.youyitech.anyview.system.entity.College"
+		id="excelResultMap">
+		<id property="id" column="CeID" />
+		<result property="id" column="CeID" />
+		<result property="collegeName" column="CeName" />
+		<result property="schoolId" column="UnID" />
+	</resultMap>
+
+	<!-- 查询管理学校表 -->
+	<select id="findByPage" parameterType="cn.youyitech.anyview.system.entity.College"
+		resultMap="CollegeResult">
+		select c.* from CollegeTable c 
+		inner join UniversityTable u on c.UnID = u.UnID
+		where c.Enabled=1 and u.Enabled=1
+		<if test="collegeName != null and collegeName != ''">
+			and c.CeName like concat('%',#{collegeName},'%')
+		</if>
+		<if test="schoolName != null and schoolName != ''">
+			AND u.UnName like concat
+			("%",#{schoolName,jdbcType=VARCHAR},"%")
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			and c.UnID=#{schoolId}
+		</if>
+		<if test="id != null and id != ''">
+			and c.CeID=#{id}
+		</if>
+	</select>
+
+	<!-- 添加学院 -->
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.College">
+		insert into CollegeTable
+		(CeName,UnID,Updater,UpdateTime,Creater,CreateTime)
+		values(#{collegeName},#{schoolId},#{collegeUpdater},now(),#{collegeCreater},now());
+	</insert>
+
+	<!-- 修改学院 -->
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.College">
+		update CollegeTable set
+		CeName=#{collegeName},UnID=#{schoolId},
+		Updater=#{collegeUpdater},UpdateTime=now() where
+		CeID=#{id}
+	</update>
+
+	<!-- 删除学院 -->
+	<update id="delete" parameterType="Long">
+		update CollegeTable set
+		Enabled=0
+		where
+		CeID =#{id}
+	</update>
+
+	<!-- 一对一，根据主键查找学院 -->
+	<select id="findById" parameterType="int" resultMap="CollegeEntity">
+		select *
+		from CollegeTable where Enabled=1 and CeID = #{id}
+	</select>
+
+	<select id="findColleageAndSchoolById" parameterType="int"
+		resultMap="CollegeEntity">
+		select * from CollegeTable a
+		left join UniversityTable b
+		on
+		a.UnID =
+		b.UnID
+		where a.Enabled=1 and a.CeID = #{id}
+	</select>
+
+	<!-- 1对多查找，通过school的id找到该学校的所有学院 -->
+	<select id="findByIdMany" resultMap="CollegeEntity"
+		parameterType="int">
+		select * from CollegeTable where Enabled=1 and UnID
+		=#{schoolId}
+	</select>
+
+	<select id="find" resultMap="CollegeResult">
+		select *from CollegeTable where
+		Enabled=1 and
+		CeID=#{id}
+	</select>
+	
+	<select id="findAll" resultMap="CollegeResult">
+		select *from CollegeTable where
+		Enabled=1
+	</select>
+
+	<select id="findNotIdList" resultMap="CollegeEntity"
+		parameterType="cn.youyitech.anyview.system.entity.College">
+		select * from CollegeTable where Enabled=1 and UnID
+		=#{schoolId} and CeID not in (#{id})
+	</select>
+	
+	<select id="findByCollegeNameAndSchoolId" parameterType="cn.youyitech.anyview.system.entity.College"
+			resultMap="excelResultMap">
+		select CeID,CeName,UnID from CollegeTable where
+		Enabled=1
+		<if test="collegeName != null and collegeName != ''">
+			and CeName=#{collegeName}
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			and UnID=#{schoolId}
+		</if>
+	</select>
+
+	<select id="findByParams" resultMap="CollegeResult">
+		select *from CollegeTable where
+		Enabled=1
+		<if test="collegeName != null and collegeName != ''">
+			and CeName=#{collegeName}
+		</if>
+		<if test="id != null and id != ''">
+			and CeID=#{id}
+		</if>
+	</select>
+
+</mapper>

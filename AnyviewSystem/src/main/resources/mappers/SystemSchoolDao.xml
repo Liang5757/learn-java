@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.youyitech.anyview.system.dao.SystemSchoolDao">
+	<!-- 查询学校表 -->
+	<select id="getSchoolList" parameterType="cn.youyitech.anyview.system.entity.SystemSchool"
+		resultType="cn.youyitech.anyview.system.entity.SystemSchool">
+		select * from system_school where 1=1
+		<if test="schoolName != null and schoolName != ''">
+			and school_name like concat('%',#{schoolName},'%')
+		</if>
+		<if test="id != null and id != ''">
+			and id=#{id}
+		</if>
+		<if test="schoolAddress != null and schoolAddress != ''">
+			and school_address like concat(#{schoolAddress},'%')
+		</if>
+	</select>
+
+	<select id="findByPage" parameterType="cn.youyitech.anyview.system.entity.SystemSchool"
+		resultType="cn.youyitech.anyview.system.entity.SystemSchool">
+		select * from system_school where 1=1
+		<if test="schoolName != null and schoolName != ''">
+			and school_name like concat('%',#{schoolName},'%')
+		</if>
+		<if test="id != null and id != ''">
+			and id=#{id}
+		</if>
+		<if test="schoolAddress != null and schoolAddress != ''">
+			and school_address like concat(#{schoolAddress},'%')
+		</if>
+	</select>
+
+	<select id="find" parameterType="Long"
+		resultType="cn.youyitech.anyview.system.entity.SystemSchool">
+		select *from
+		system_school where id=#{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByParams" resultType="cn.youyitech.anyview.system.entity.SystemSchool">
+		select *from system_school where 1=1
+		<if test="id!=null and id!=''">
+			and id=#{id}
+		</if>
+		<if test="schoolName!=null and schoolName!=''">
+			and school_name=#{schoolName}
+		</if>
+	</select>
+
+	<select id="findAll" resultType="cn.youyitech.anyview.system.entity.SystemSchool">
+		select *from system_school
+	</select>
+</mapper>

@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.StudentDao">
+
+	<resultMap id="StudentResultMap" type="cn.youyitech.anyview.system.entity.Student">
+		<id property="id" column="SID" />
+		<result property="sex" column="Ssex" />
+		<result property="state" column="State" />
+		<result property="username" column="Sno" />
+		<result property="enabled" column="Enabled" />
+		<result property="password" column="SPsw" />
+		<result property="name" column="SName" />
+		<result property="schoolId" column="UnID" />
+		<result property="email" column="EMAIL" />
+		<result property="createdDate" column="CreateTime" />
+		<result property="lastUpdatedDate" column="UpdateTime" />
+		<result property="createdBy" column="Creater" />
+		<result property="lastUpdatedBy" column="Updater" />
+		<result property="roleId" column="RoleId" />
+		<result property="saccumTime" column="SaccumTime" />
+		<result property="logIP" column="LogIP" />
+		<result property="logPort" column="LogPort" />
+		<result property="loginStatus" column="LoginStatus" />
+
+		<association property="school" column="UnID"
+			javaType="cn.youyitech.anyview.system.entity.School" select="cn.youyitech.anyview.system.dao.SchoolDao.findById">
+			<id property="id" column="UnID" />
+		</association>
+
+		<collection property="classList" column="SID"
+			javaType="java.util.ArrayList" ofType="ClassAndStudent"
+			select="cn.youyitech.anyview.system.dao.ClassAndStudentDao.findByStudentID">
+			<id property="id" column="ID" />
+		</collection>
+	</resultMap>
+
+	<resultMap id="StudentResult" type="cn.youyitech.anyview.system.entity.Student">
+		<id property="id" column="SID" />
+		<result property="sex" column="Ssex" />
+		<result property="state" column="State" />
+		<result property="username" column="Sno" />
+		<result property="enabled" column="Enabled" />
+		<result property="schoolId" column="UnID" />
+		<result property="name" column="SName" />
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		SID ,Ssex ,State ,Sno,Enabled,SPsw,SName,UnID,EMAIL,
+		IS_LOCKED, LOCKED_DATE,
+		LOGIN_FAILURE_COUNT,
+		LAST_LOGIN_DATE,
+		LAST_LOGIN_IP, CreateTime, Creater,
+		UpdateTime, Updater,RoleId,SaccumTime
+	</sql>
+
+	<sql id="base_value_column">
+		#{id} ,#{sex} ,#{state}
+		,#{username},#{enabled},#{password},#{name},#{schoolId},#{email}
+		,#{isLocked}, #{lockedDate},
+		#{loginFailureCount}, #{lastLoginDate},
+		#{lastLoginIp},
+		#{createdDate}, #{createdBy},
+		#{lastUpdatedDate},
+		#{lastUpdatedBy}, #{roleId},#{saccumTime}
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		<if test="id != null and id != ''">
+			AND STUDENTTABLE.SID = #{id}
+		</if>
+		<if test="sex != null and sex != ''">
+			AND STUDENTTABLE.Ssex = #{sex,jdbcType=VARCHAR}
+		</if>
+		<if test="state != null and state != ''">
+			AND STUDENTTABLE.State = #{state,jdbcType=VARCHAR}
+		</if>
+		<if test="username != null and username != ''">
+			AND STUDENTTABLE.Sno = #{username,jdbcType=VARCHAR}
+		</if>
+		<if test="password != null and password != ''">
+			AND STUDENTTABLE.SPsw = #{password}
+		</if>
+		<if test="name != null and name != ''">
+			AND STUDENTTABLE.SName = #{name}
+		</if>
+		<if test="schoolId != null">
+			AND STUDENTTABLE.UnID = #{schoolId}
+		</if>
+		<if test="isLocked != null">
+			AND STUDENTTABLE.IS_LOCKED = #{isLocked}
+		</if>
+		<if test="lockedDate != null">
+			AND STUDENTTABLE.LOCKED_DATE = #{lockedDate}
+		</if>
+		<if test="loginFailureCount != null">
+			AND STUDENTTABLE.LOGIN_FAILURE_COUNT =
+			#{loginFailureCount}
+		</if>
+		<if test="lastLoginDate != null">
+			AND STUDENTTABLE.LAST_LOGIN_DATE = #{lastLoginDate}
+		</if>
+		<if test="lastLoginIp != null">
+			AND STUDENTTABLE.LAST_LOGIN_IP = #{lastLoginIp}
+		</if>
+		<if test="createdDate != null">
+			AND STUDENTTABLE.CreateTime = #{createdDate}
+		</if>
+		<if test="createdBy != null">
+			AND STUDENTTABLE.Creater = #{createdBy}
+		</if>
+		<if test="lastUpdatedDate != null">
+			AND STUDENTTABLE.UpdateTime =
+			#{lastUpdatedDate}
+		</if>
+		<if test="lastUpdatedBy != null">
+			AND STUDENTTABLE.Updater = #{lastUpdatedBy}
+		</if>
+		<if test="roleId != null">
+			AND STUDENTTABLE.RoleId = #{roleId}
+		</if>
+		<if test="email != null">
+			AND STUDENTTABLE.EMAIL = #{email}
+		</if>
+		<if test="saccumTime != null">
+			AND STUDENTTABLE.SaccumTime = #{saccumTime}
+		</if>
+	</sql>
+
+	<sql id="set_column">
+		<if test="id != null">
+			SID = #{id},
+		</if>
+		<if test="sex != null and sex != ''">
+			Ssex = #{sex,jdbcType=VARCHAR},
+		</if>
+		<if test="state != null and state != ''">
+			State = #{state,jdbcType=VARCHAR},
+		</if>
+		<if test="username != null and username != ''">
+			Sno = #{username,jdbcType=VARCHAR},
+		</if>
+		<if test="password != null and password != ''">
+			SPsw = #{password},
+		</if>
+		<if test="name != null and name != ''">
+			SName = #{name},
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			UnID = #{schoolId},
+		</if>
+		<if test="isLocked != null">
+			IS_LOCKED = #{isLocked},
+		</if>
+		<if test="lockedDate != null">
+			LOCKED_DATE = #{lockedDate},
+		</if>
+		<if test="loginFailureCount != null">
+			LOGIN_FAILURE_COUNT = #{loginFailureCount},
+		</if>
+		<if test="lastLoginDate != null">
+			LAST_LOGIN_DATE = #{lastLoginDate},
+		</if>
+		<if test="lastLoginIp != null">
+			LAST_LOGIN_IP = #{lastLoginIp},
+		</if>
+		<if test="createdDate != null">
+			CreateTime = #{createdDate},
+		</if>
+		<if test="createdBy != null">
+			Creater = #{createdBy},
+		</if>
+		<if test="lastUpdatedDate != null">
+			UpdateTime =#{lastUpdatedDate},
+		</if>
+		<if test="lastUpdatedBy != null">
+			Updater = #{lastUpdatedBy},
+		</if>
+		<if test="roleId != null">
+			RoleId = #{roleId},
+		</if>
+		<if test="email != null">
+			EMAIL = #{email},
+		</if>
+		<if test="saccumTime != null">
+			SaccumTime = #{saccumTime},
+		</if>
+	</sql>
+
+
+	<select id="find" resultMap="StudentResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM STUDENTTABLE
+		WHERE Enabled=1 and SID=#{id}
+	</select>
+
+	<select id="findByClassAndStudent" resultMap="StudentResult">
+		SELECT
+		<include refid="base_column" />
+		FROM STUDENTTABLE
+		WHERE Enabled=1 and SID=#{id}
+	</select>
+
+	<select id="findAll" resultMap="StudentResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM STUDENTTABLE
+		WHERE Enabled=1
+	</select>
+
+	<select id="findTotal" resultMap="StudentResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM STUDENTTABLE
+	</select>
+
+	<select id="findByUserNameAndSchoolId" parameterType="cn.youyitech.anyview.system.entity.Student"
+		resultMap="StudentResult">
+		SELECT SID,Sno,UnID
+		FROM STUDENTTABLE
+		<where>
+			Enabled=1
+			<if test="username != null and username != ''">
+				AND STUDENTTABLE.Sno = #{username,jdbcType=VARCHAR}
+			</if>
+			<if test="schoolId != null">
+				AND STUDENTTABLE.UnID = #{schoolId}
+			</if>
+		</where>
+	</select>
+
+	<select id="findByAttribute" parameterType="cn.youyitech.anyview.system.entity.Student"
+		resultMap="StudentResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM STUDENTTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.Student">
+		INSERT INTO STUDENTTABLE
+		(
+		<include refid="base_column" />
+
+		)
+		VALUES (
+		<include refid="base_value_column" />
+
+		)
+	</insert>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.Student">
+		UPDATE STUDENTTABLE
+		<set>
+			<include refid="set_column" />
+		</set>
+
+		WHERE SID = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="delete" parameterType="Long">
+		update STUDENTTABLE set
+		Enabled=0
+		where
+		SID =#{id}
+	</update>
+
+
+	<delete id="deleteAll">
+		DELETE FROM STUDENTTABLE
+		WHERE SID IN
+		<foreach item="studentId" index="index" collection="ids" open="("
+			separator="," close=")">
+			#{studentId}
+		</foreach>
+	</delete>
+
+	<select id="findByParams" resultMap="StudentResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM STUDENTTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByEntity" resultMap="StudentResultMap"
+		parameterType="cn.youyitech.anyview.system.entity.Student">
+		select * from STUDENTTABLE
+		where Enabled=1
+		<if test="username != null and username != ''">
+			AND Sno = #{username}
+		</if>
+		<if test="roleId != null and roleId != ''">
+			AND RoleId = #{roleId}
+		</if>
+		<if test="email != null and email != ''">
+			AND EMAIL = #{email}
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			AND UnID = #{schoolId}
+		</if>
+	</select>
+
+	<select id="findEntityList" resultMap="StudentResultMap"
+		parameterType="cn.youyitech.anyview.system.entity.Student">
+		select * from STUDENTTABLE
+		where Enabled=1
+		<if test="username != null and username != ''">
+			AND s.Sno like concat
+			("%",#{username,jdbcType=VARCHAR},"%")
+		</if>
+		<if test="name != null and name != ''">
+			AND s.SName like concat
+			("%",#{name,jdbcType=VARCHAR},"%")
+		</if>
+		<if test="studentIdList != null and studentIdList != ''">
+			and SID in
+			<foreach collection="studentIdList" open="(" close=")"
+				separator="," item="items">#{items} </foreach>
+		</if>
+	</select>
+
+
+	<select id="findByPage" resultMap="StudentResultMap">
+		SELECT
+		s.SID ,s.Ssex ,s.State ,s.Sno,s.Enabled,s.SPsw,s.SName,s.UnID,
+		s.EMAIL,s.CreateTime,s.Creater,s.UpdateTime,s.Updater,s.RoleId,s.SaccumTime,
+		group_concat(distinct ct.Cname) as cname
+		,group_concat(distinct
+		m.major_name) as major_name,
+		group_concat(distinct colleget.CeName) as
+		cename,group_concat(distinct u.UnName) as universityName
+		FROM
+		STUDENTTABLE s
+		inner join CLASS_STUDENTTABLE cs on cs.SID = s.SID
+		inner
+		join CLASSTABLE ct on ct.CID = cs.CID
+		inner join major m on m.id =
+		ct.MID
+		inner join CollegeTable colleget on colleget.CeID = m.college_id
+		inner join UniversityTable u on colleget.UnID = u.UnID
+
+		<where>
+			cs.Status=1 and s.Enabled=1 and ct.Enabled=1
+			and m.Enabled=1 and
+			colleget.Enabled=1
+			and u.Enabled=1 and cs.Status=1
+
+			<if test="username != null and username != ''">
+				AND s.Sno like concat
+				("%",#{username,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="name != null and name != ''">
+				AND s.SName like concat
+				("%",#{name,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="cName != null and cName != ''">
+				AND ct.Cname like concat
+				("%",#{cName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="majorName != null and majorName != ''">
+				AND m.major_name like concat
+				("%",#{majorName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="collegeName != null and collegeName != ''">
+				AND colleget.CeName like concat
+				("%",#{collegeName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="schoolName != null and schoolName != ''">
+				AND u.UnName like concat
+				("%",#{schoolName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="schoolId!=null and schoolId!=''">
+				and u.UnID=#{schoolId}
+			</if>
+
+
+		</where>
+		group by s.SID
+	</select>
+
+</mapper> 

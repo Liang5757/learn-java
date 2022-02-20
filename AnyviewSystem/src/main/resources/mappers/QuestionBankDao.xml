@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.QuestionBankDao">
+
+	<resultMap id="QuestionBankResultMap"
+		type="cn.youyitech.anyview.system.entity.QuestionBank">
+		<id property="id" column="LID" />
+		<result property="question_bank" column="LName" />
+		<result property="course_name" column="course_name" />
+		<result property="public_level" column="public_level" />
+		<result property="specific_school" column="specific_school" />
+		<result property="created_person" column="CreatePerson" />
+		<result property="created_date" column="CreateTime" />
+		<result property="update_person" column="UpdatePerson" />
+		<result property="update_date" column="UpdateTime" />
+		<result property="enabled" column="Enabled" />
+		
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		LID ,LName ,course_name ,public_level ,specific_school
+		,CreatePerson
+		,CreateTime,UpdatePerson,UpdateTime,Enabled
+	</sql>
+
+	<sql id="base_value_column">
+		#{id} ,#{question_bank} ,#{course_name}
+		,#{public_level}
+		,#{specific_school} ,#{created_person}
+		,#{created_date},#{update_person} ,#{update_date} ,#{enabled}
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		<if test="id != null and id != ''">
+			AND PROBLEMLIBTABLE.LID = #{id}
+		</if>
+		<if test="question_bank != null and question_bank != ''">
+			AND PROBLEMLIBTABLE.LName =
+			#{question_bank,jdbcType=VARCHAR}
+		</if>
+		<if test="course_name != null and course_name != ''">
+			AND PROBLEMLIBTABLE.course_name =
+			#{course_name}
+		</if>
+		<if test="public_level != null and public_level != ''">
+			AND PROBLEMLIBTABLE.public_level =
+			#{public_level}
+		</if>
+		<if test="specific_school != null and specific_school != ''">
+			AND PROBLEMLIBTABLE.specific_school =
+			#{specific_school,jdbcType=VARCHAR}
+		</if>
+	</sql>
+
+	<sql id="set_column">
+		<if test="id != null">
+			LID = #{id},
+		</if>
+		<if test="question_bank != null and question_bank != ''">
+			LName = #{question_bank,jdbcType=VARCHAR},
+		</if>
+		<if test="course_name != null and course_name != ''">
+			course_name = #{course_name},
+		</if>
+		<if test="public_level != null">
+			public_level = #{public_level},
+		</if>
+		<if test="specific_school != null  and specific_school != ''">
+			specific_school = #{specific_school,jdbcType=VARCHAR},
+		</if>
+		<if test="update_person != null">
+			UpdatePerson = #{update_person},
+		</if>
+		<if test="update_date != null">
+			UpdateTime = #{update_date},
+		</if>
+
+	</sql>
+	
+	<select id="findListByName" resultMap="QuestionBankResultMap"
+		parameterType="cn.youyitech.anyview.system.entity.QuestionBank">
+		select * from PROBLEMLIBTABLE where Enabled=1
+		<if test="question_bank != null and question_bank != ''">
+			and LName like concat('%',#{question_bank},'%')
+		</if>
+
+	</select>
+
+	<select id="find" resultMap="QuestionBankResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM PROBLEMLIBTABLE
+		WHERE Enabled=1 and LID=#{id}
+	</select>
+
+	<select id="findAll" resultMap="QuestionBankResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM PROBLEMLIBTABLE
+		WHERE Enabled=1
+	</select>
+
+	<select id="findTotal" resultMap="QuestionBankResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM PROBLEMLIBTABLE
+	</select>
+	
+	<select id="findByAttribute" parameterType="cn.youyitech.anyview.system.entity.QuestionBank" resultMap="QuestionBankResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM PROBLEMLIBTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.QuestionBank">
+		INSERT INTO PROBLEMLIBTABLE
+		(
+		<include refid="base_column" />
+		)
+		VALUES (
+		<include refid="base_value_column" />
+		)
+	</insert>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.QuestionBank">
+		UPDATE PROBLEMLIBTABLE
+		<set>
+			<include refid="set_column" />
+		</set>
+		WHERE LID = #{id}
+	</update>
+
+	<delete id="delete">
+		UPDATE PROBLEMLIBTABLE
+		set Enabled=0
+		WHERE LID = #{id}
+	</delete>
+
+	<delete id="deleteAll">
+		UPDATE PROBLEMLIBTABLE
+		set Enabled=0
+		WHERE LID IN
+		<foreach item="questionbankId" index="index" collection="ids"
+			open="(" separator="," close=")">
+			#{questionbankId}
+		</foreach>
+	</delete>
+
+	<select id="findByParams" resultMap="QuestionBankResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM PROBLEMLIBTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByPage" resultMap="QuestionBankResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM PROBLEMLIBTABLE
+		<where>
+			Enabled=1
+			<if test="question_bank != null and question_bank != ''">
+				AND LName like concat
+				("%",#{question_bank,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="courseName != null and courseName != ''">
+				AND course_name like concat
+				("%",#{courseName,jdbcType=VARCHAR},"%")
+			</if>
+		</where>
+	</select>
+	
+	<!-- 为作业表题目所用，Enabled不必设为1 -->
+	<select id="findForSchemeContentCacheTable" resultMap="QuestionBankResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM PROBLEMLIBTABLE
+		WHERE LID=#{id}
+	</select>
+
+</mapper> 

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.CourseArrangeAndWorkingTableDao">
+
+	<resultMap id="CourseArrangeAndWorkingTableResultMap"
+		type="cn.youyitech.anyview.system.entity.CourseArrangeAndWorkingTable">
+		<id property="id" column="ID" />
+		<result property="courseArrangeId" column="CTCID" />
+		<result property="workingTableId" column="VID" />
+		<result property="enabled" column="Enabled" />
+		<association property="workingTable" column="VID"
+			javaType="WorkingTable" select="cn.youyitech.anyview.system.dao.WorkingTableDao.find">
+			<id property="id" column="VID" />
+		</association>
+
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		ID ,CTCID ,VID,Enabled
+	</sql>
+
+	<sql id="base_value_column">
+		#{id,jdbcType=BIGINT} ,#{courseArrangeId},#{workingTableId}
+		,#{enabled}
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		<if test="id != null and id!=''">
+			AND ID = #{id,jdbcType=BIGINT}
+		</if>
+		<if test="courseArrangeId != null and courseArrangeId!=null">
+			AND CTCID = #{courseArrangeId}
+		</if>
+		<if test="workingTableId != null and workingTableId!=null">
+			AND VID = #{workingTableId}
+		</if>
+	</sql>
+
+	<sql id="set_column">
+
+		<if test="id != null">
+			ID = #{id,jdbcType=BIGINT},
+		</if>
+		<if test="courseArrangeId != null">
+			CTCID = #{courseArrangeId},
+		</if>
+		<if test="workingTableId != null">
+			VID = #{workingTableId},
+		</if>
+
+	</sql>
+
+
+	<select id="find" resultMap="CourseArrangeAndWorkingTableResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_COURSE_SCHEMETABLE
+		WHERE Enabled=1 and
+		ID=#{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findAll" resultMap="CourseArrangeAndWorkingTableResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_COURSE_SCHEMETABLE
+		WHERE Enabled=1
+	</select>
+
+	<select id="findTotal" resultMap="CourseArrangeAndWorkingTableResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_COURSE_SCHEMETABLE
+	</select>
+
+	<insert id="insert"
+		parameterType="cn.youyitech.anyview.system.entity.CourseArrangeAndWorkingTable">
+		INSERT INTO CLASS_COURSE_SCHEMETABLE
+		(
+		<include refid="base_column" />
+		)
+		VALUES (
+		<include refid="base_value_column" />
+		)
+	</insert>
+
+	<!-- 2019.03.27 原保存方法未包含某些字段 cjs-->
+	<insert id="saveOne" parameterType="cn.youyitech.anyview.system.entity.CourseArrangeAndWorkingTable">
+		INSERT INTO CLASS_COURSE_SCHEMETABLE
+		(CID, CTCID, VID, CourseID, TID, Enabled)
+		VALUES (
+			#{classId}, #{courseArrangeId}, #{workingTableId}, #{courseId}, #{teacherId},#{enabled}
+		)
+	</insert>
+
+
+	<update id="update"
+		parameterType="cn.youyitech.anyview.system.entity.CourseArrangeAndWorkingTable">
+		UPDATE CLASS_COURSE_SCHEMETABLE
+		<set>
+			<include refid="set_column" />
+		</set>
+		WHERE ID = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="delete" parameterType="Long">
+		update
+		CLASS_COURSE_SCHEMETABLE set
+		Enabled=0
+		where ID =#{id}
+	</update>
+
+	<update id="deleteByWorkingTableId" parameterType="Long">
+		update
+		CLASS_COURSE_SCHEMETABLE set
+		Enabled=0
+		where VID =#{workingTableId}
+	</update>
+	
+	<update id="deleteByCourseArrangeId" parameterType="Long">
+		update
+		CLASS_COURSE_SCHEMETABLE set
+		Enabled=0
+		where CTCID =#{courseArrangeId}
+	</update>
+
+	<!-- 在课程编排修改时把之前的作业表删掉重新添加 -->
+	<delete id="deleteAll">
+		DELETE FROM CLASS_COURSE_SCHEMETABLE
+		WHERE ID IN
+		<foreach item="cAndwId" index="index" collection="ids" open="("
+			separator="," close=")">
+			#{cAndwId}
+		</foreach>
+	</delete>
+
+	<select id="findByParams" resultMap="CourseArrangeAndWorkingTableResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_COURSE_SCHEMETABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByPage" resultMap="CourseArrangeAndWorkingTableResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_COURSE_SCHEMETABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByIdMany" resultMap="CourseArrangeAndWorkingTableResultMap">
+		select * from
+		CLASS_COURSE_SCHEMETABLE where Enabled=1 and CTCID = #{id}
+	</select>
+
+
+
+</mapper> 

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.ExerciseDao">
+
+	<resultMap id="ExerciseResultMap" type="cn.youyitech.anyview.system.entity.Exercise">
+		<id property="eId" column="EID" />
+		<result property="sId" column="SID" />
+		<result property="vId" column="VID" />
+		<result property="score" column="Score" />
+		<result property="pageScore" column="pageScore" />
+		<result property="attitudeScore" column="attitudeScore" />
+		<result property="pId" column="PID" />
+		<result property="cId" column="CID" />
+		<result property="accumTime" column="AccumTime" />
+		<result property="courseId" column="CourseID" />
+		<result property="kind" column="Kind" />
+		<result property="eContent" column="EContent" />
+		<result property="eComment" column="EComment" />
+		<result property="firstPastTime" column="FirstPastTime"/>
+		<result property="update_person" column="UpdatePerson" />
+		<result property="update_date" column="UpdateTime" />
+		<result property="enabled" column="Enabled" />
+		<result property="runResult" column="RunResult" />
+		
+<!-- 		<result property="cmpCount" column="CmpCount" />
+		<result property="cmpRightCount" column="CmpRightCount" />
+		<result property="cmpErrorCount" column="CmpErrorCount" /> -->		
+		
+		
+		
+		
+		
+		<association property="student" column="SID" javaType="Student"
+			select="cn.youyitech.anyview.system.dao.StudentDao.find">
+			<id property="id" column="SID" />
+		</association>
+		<association property="workingTable" column="VID" javaType="WorkingTable"
+			select="cn.youyitech.anyview.system.dao.WorkingTableDao.find">
+			<id property="id" column="VID" />
+		</association>
+		<association property="question" column="PID" javaType="Question"
+			select="cn.youyitech.anyview.system.dao.QuestionDao.find">
+			<id property="id" column="PID" />
+		</association>
+		<association property="classSystem" column="CID" javaType="ClassEntity"
+			select="cn.youyitech.anyview.system.dao.ClassDao.find">
+			<id property="id" column="CID" />
+		</association>
+		<association property="course" column="CourseID" javaType="Course"
+			select="cn.youyitech.anyview.system.dao.CourseDao.find">
+			<id property="id" column="CourseID" />
+		</association>
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		EID ,SID , VID ,PID,CID,CourseID, Kind ,EContent,EComment,
+		 UpdatePerson ,Score,pageScore,attitudeScore,UpdateTime,Enabled,RunResult,FirstPastTime,AccumTime
+	</sql>
+
+	<sql id="base_value_column">
+		#{eId},#{sId} ,#{vId},#{pId},#{cId},#{courseId},#{kind},#{eContent},#{eComment}
+		,#{update_person},#{update_date},#{enabled},#{runResult}
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		<if test="eId != null and eId!=''">
+			AND EXERCISETABLE.EID = #{eId}
+		</if>
+		<if test="sId != null and sId!=''">
+			AND EXERCISETABLE.SID = #{sId}
+		</if>
+		<if test="vId != null and vId != ''">
+			AND EXERCISETABLE.VID = #{vId}
+		</if>
+		<if test="pId != null and pId!=''">
+			AND EXERCISETABLE.PID = #{pId}
+		</if>
+		<if test="cId != null and cId != ''">
+			AND EXERCISETABLE.CID = #{cId}
+		</if>
+		<if test="courseId != null and courseId != ''">
+			AND EXERCISETABLE.CourseID = #{courseId}
+		</if>
+		<if test="kind != null and kind!=''">
+			AND EXERCISETABLE.Kind = #{kind}
+		</if>
+		<if test="eContent != null and eContent != ''">
+			AND EXERCISETABLE.EContent = #{eContent}
+		</if>
+		<if test="eComment != null and eComment != ''">
+			AND EXERCISETABLE.EComment = #{eComment}
+		</if>
+		<if test="runResult != null and runResult != ''">
+			AND EXERCISETABLE.RunResult = #{runResult}
+		</if>
+	</sql>
+
+	<sql id="set_column">
+		<if test="eId != null">
+			EID = #{eId},
+		</if>
+		<if test="sId != null">
+			SID = #{sId},
+		</if>
+		<if test="vId != null">
+			VID = #{vId},
+		</if>
+		<if test="pId != null">
+			PID = #{pId},
+		</if>
+		<if test="cId != null">
+			CID = #{cId},
+		</if>
+		<if test="courseId != null">
+			CourseID = #{courseId},
+		</if>
+		<if test="kind != null">
+			Kind = #{kind},
+		</if>
+		<if test="eContent != null and eContent != ''">
+			EContent = #{eContent},
+		</if>
+		<if test="eComment != null and eComment != ''">
+			EComment = #{eComment},
+		</if>
+		<if test="score != null">
+			Score = #{score},
+		</if>
+		<if test="pageScore != null">
+			pageScore = #{pageScore},
+		</if>
+		<if test="attitudeScore != null">
+			attitudeScore = #{attitudeScore},
+		</if>
+		<if test="runResult != null">
+			RunResult = #{runResult},
+		</if>
+	</sql>
+
+
+	<select id="find" resultMap="ExerciseResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM EXERCISETABLE
+		WHERE Enabled=1 and EID=#{eId}
+	</select>
+	
+	<select id="findAll" resultMap="ExerciseResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM EXERCISETABLE
+		WHERE Enabled=1 
+	</select>
+	<select id="findbySid" parameterType="Long" resultMap="ExerciseResultMap">
+		SELECT EID
+		FROM EXERCISETABLE
+		WHERE SID=#{sId} AND Enabled=1
+
+	</select>
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.Exercise">
+		INSERT INTO EXERCISETABLE
+		(
+		<include refid="base_column" />
+		)
+		VALUES (
+		<include refid="base_value_column" />
+		)
+	</insert>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.Exercise">
+		UPDATE EXERCISETABLE
+		<set>
+			<include refid="set_column" />
+		</set>
+		WHERE EID = #{eId}
+	</update>
+
+	<update id="delete" parameterType="Long">
+		update EXERCISETABLE set Enabled=0
+		where
+		EID =#{eId}
+	</update>
+
+	<delete id="deleteAll">
+		DELETE FROM EXERCISETABLE
+		WHERE EID IN
+		<foreach item="exerciseId" index="index" collection="ids" open="("
+			separator="," close=")">
+			#{exerciseId}
+		</foreach>
+	</delete>
+
+	<select id="findByParams" resultMap="ExerciseResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM EXERCISETABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+	
+
+	<select id="findByPage" resultMap="ExerciseResultMap">
+		SELECT
+		e.EID ,e.SID , e.VID ,e.PID,e.CID,e.CourseID, e.Kind ,e.EContent,e.EComment,e.UpdatePerson ,e.UpdateTime,e.Enabled,e.RunResult
+		FROM EXERCISETABLE e 
+		inner join CLASSTABLE c on c.CID = e.CID
+		inner join CLASS_TEACHER_COURSETABLE ctc on ctc.CID = e.CID
+		<where>
+			e.Enabled=1 AND c.Enabled=1 AND ctc.Enabled=1 AND c.CID = e.CID
+			<if test="eId != null and eId!=''">
+			AND e.EID = #{eId}
+		</if>
+		<if test="sId != null and sId!=''">
+			AND e.SID = #{sId}
+		</if>
+		<if test="vId != null and vId != ''">
+			AND e.VID = #{vId}
+		</if>
+		<if test="pId != null and pId!=''">
+			AND e.PID = #{pId}
+		</if>
+		<if test="cId != null and cId != ''">
+			AND e.CID = #{cId}
+		</if>
+		<if test="courseId != null and courseId != ''">
+			AND e.CourseID = #{courseId}
+		</if>
+		<if test="kind != null and kind!=''">
+			AND e.Kind = #{kind}
+		</if>
+		<if test="eContent != null and eContent != ''">
+			AND e.EContent = #{eContent}
+		</if>
+		<if test="eComment != null and eComment != ''">
+			AND e.EComment = #{eComment}
+		</if>
+		<if test="runResult != null and runResult != ''">
+			AND e.RunResult = #{runResult}
+		</if>
+		<if test="teacherId != null and teacherId != ''">
+			AND ctc.TID = #{teacherId}
+		</if>
+		</where>
+		group by e.SID,e.VID
+	</select>
+	
+	<select id="findByEntity" parameterType="Exercise" resultMap="ExerciseResultMap">
+		select * from EXERCISETABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+	<select id="findForStuduent" parameterType="Exercise" resultMap="ExerciseResultMap">
+		select * from EXERCISETABLE WHERE CID=#{cId} AND CourseId=#{courseId} AND VID=#{vId} AND SID=#{sId} AND Enabled=1
+	</select>
+	
+	<select id="countRightNumber" resultType="java.lang.Integer">
+		select count(*) from EXERCISETABLE WHERE CID=#{cId} AND CourseId=#{courseId} AND VID=#{vId} AND SID=#{sId} AND Enabled=1 AND RunResult=1
+	</select>
+
+	<select id="getExerciseAnswer" resultMap="ExerciseResultMap">
+		SELECT * FROM exercisetable WHERE CID=#{cid} AND PID=#{pid} AND Enabled=1
+	</select>
+	
+	<select id="findByPSC" resultMap="ExerciseResultMap">
+		SELECT * FROM exercisetable WHERE PID=#{pid} AND SID=#{sid} AND CID=#{cid} AND Enabled=1
+	</select>
+	
+	<select id="findByPSVs" resultMap="ExerciseResultMap" parameterType="java.util.Map">
+		SELECT * FROM exercisetable WHERE Enabled=1
+		AND PID IN
+		<foreach item="item" index="index" collection="pids" open="(" separator="," close=")">
+		#{item}
+		</foreach>
+		AND SID IN
+		<foreach item="item" index="index" collection="sids" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		AND VID = #{vid}
+	</select>
+
+</mapper> 

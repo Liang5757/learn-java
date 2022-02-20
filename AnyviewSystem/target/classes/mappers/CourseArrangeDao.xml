@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.CourseArrangeDao">
+
+	<resultMap id="CourseArrangeResultMap"
+		type="cn.youyitech.anyview.system.entity.CourseArrange">
+		<id property="id" column="ID" />
+		<result property="class_id" column="CID" />
+		<result property="course_id" column="CourseID" />
+		<result property="teacher_id" column="TID" />
+		<result property="created_person" column="CreatePerson" />
+		<result property="created_date" column="CreateTime" />
+		<result property="update_person" column="UpdatePerson" />
+		<result property="update_date" column="UpdateTime" />
+		<result property="enabled" column="Enabled" />
+		<association property="classSystem" column="CID" javaType="ClassEntity"
+			select="cn.youyitech.anyview.system.dao.ClassDao.find">
+			<id property="id" column="CID" />
+		</association>
+		<association property="course" column="CourseID" javaType="Course"
+			select="cn.youyitech.anyview.system.dao.CourseDao.find">
+			<id property="id" column="CourseID" />
+		</association>
+		<association property="teacher" column="TID" javaType="Teacher"
+			select="cn.youyitech.anyview.system.dao.TeacherDao.find">
+			<id property="id" column="TID" />
+		</association>
+		<collection property="courseArrangeAndWorkingTable" column="ID"
+			javaType="java.util.ArrayList" ofType="CourseArrangeAndWorkingTable"
+			select="cn.youyitech.anyview.system.dao.CourseArrangeAndWorkingTableDao.findByIdMany">
+		</collection>
+		
+		<collection property="classAndStudentList" column="CID"
+			javaType="java.util.ArrayList" ofType="ClassAndStudent"
+			select="cn.youyitech.anyview.system.dao.ClassAndStudentDao.findByIdMany">
+		</collection>
+
+	</resultMap>
+
+	<resultMap id="CourseArrangeEntity"
+		type="cn.youyitech.anyview.system.entity.CourseArrange">
+		<id property="id" column="ID" />
+		<result property="class_id" column="CID" />
+		<result property="course_id" column="CourseID" />
+		<result property="teacher_id" column="TID" />
+		<result property="created_person" column="CreatePerson" />
+		<result property="created_date" column="CreateTime" />
+		<result property="update_person" column="UpdatePerson" />
+		<result property="update_date" column="UpdateTime" />
+		<result property="enabled" column="Enabled" />
+		
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		ID ,CID ,CourseID,TID ,
+		CreatePerson,CreateTime,UpdatePerson ,UpdateTime ,Enabled
+	</sql>
+
+	<sql id="base_value_column">
+		#{id,jdbcType=BIGINT} ,#{class_id},#{course_id} ,#{teacher_id}
+		,#{created_person} ,#{created_date}
+		,#{update_person} ,#{update_date},#{enabled}
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		and Enabled=1
+		<if test="id != null and id!=''">
+			AND ID = #{id,jdbcType=BIGINT}
+		</if>
+		<if test="class_id != null and class_id!=''">
+			AND CID = #{class_id}
+		</if>
+		<if test="course_id != null and course_id!=''">
+			AND CourseID = #{course_id}
+		</if>
+		<if test="teacher_id != null and teacher_id!=''">
+			AND TID = #{teacher_id}
+		</if>
+	</sql>
+
+	<sql id="set_column">
+		<if test="id != null">
+			ID = #{id,jdbcType=BIGINT},
+		</if>
+		<if test="class_id != null">
+			CID = #{class_id},
+		</if>
+		<if test="course_id != null">
+			CourseID = #{course_id},
+		</if>
+		<if test="teacher_id != null">
+			TID = #{teacher_id},
+		</if>
+		<if test="update_person != null and update_person != ''">
+			UpdatePerson = #{update_person,jdbcType=VARCHAR},
+		</if>
+		<if test="update_date != null and update_date != ''">
+			UpdateTime = #{update_date},
+		</if>
+
+	</sql>
+
+
+	<select id="find" resultMap="CourseArrangeResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_TEACHER_COURSETABLE
+		WHERE Enabled=1 and
+		ID=#{id,jdbcType=BIGINT}
+	</select>
+
+
+
+
+	<select id="findAddNew" resultMap="CourseArrangeResultMap">
+		SELECT * FROM CLASS_TEACHER_COURSETABLE where Enabled=1
+		<if test="class_id != null">
+			AND CID = #{class_id}
+		</if>
+		<if test="course_id != null">
+			AND CourseID = #{course_id}
+		</if>
+		<if test="teacher_id != null">
+			AND TID = #{teacher_id}
+		</if>
+	</select>
+
+	<select id="findByTeacher" resultMap="CourseArrangeResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_TEACHER_COURSETABLE
+		WHERE Enabled=1 and
+		TID=#{teacher_id}
+	</select>
+
+	<select id="findAll" resultMap="CourseArrangeResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_TEACHER_COURSETABLE
+		WHERE Enabled=1
+	</select>
+
+	<select id="findTotal" resultMap="CourseArrangeResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_TEACHER_COURSETABLE
+	</select>
+	
+	<select id="findByAttribute" parameterType="cn.youyitech.anyview.system.entity.CourseArrange"
+			resultMap="CourseArrangeResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_TEACHER_COURSETABLE
+		<where>
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.CourseArrange">
+		INSERT INTO CLASS_TEACHER_COURSETABLE
+		(
+		<include refid="base_column" />
+		)
+		VALUES (
+		<include refid="base_value_column" />
+		)
+	</insert>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.CourseArrange">
+		UPDATE CLASS_TEACHER_COURSETABLE
+		<set>
+			<include refid="set_column" />
+		</set>
+		WHERE ID = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="delete" parameterType="Long">
+		update
+		CLASS_TEACHER_COURSETABLE set
+		Enabled=0
+		where ID =#{id}
+	</update>
+
+	<delete id="deleteAll">
+		DELETE FROM CLASS_TEACHER_COURSETABLE
+		WHERE ID IN
+		<foreach item="courseId" index="index" collection="ids" open="("
+			separator="," close=")">
+			#{courseId}
+		</foreach>
+	</delete>
+
+	<select id="findByParams" resultMap="CourseArrangeResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_TEACHER_COURSETABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByPage" resultMap="CourseArrangeResultMap">
+
+		SELECT c.CourseName, r.ID ,r.CID ,r.CourseID,r.TID ,
+		r.CreatePerson ,r.CreateTime,r.UpdatePerson ,r.UpdateTime
+		FROM
+		CLASS_TEACHER_COURSETABLE r
+		inner join coursetable c on c.CourseID = r.CourseID
+		inner join CLASSTABLE ct on ct.CID = r.CID
+		inner join major m on m.id = ct.MID
+		inner join CollegeTable colleget on colleget.CeID = m.college_id
+		inner join UniversityTable u on colleget.UnID = u.UnID
+		inner join teachertable t on r.TID = t.TID
+		<where>
+			r.Enabled=1 and ct.Enabled=1
+			and m.Enabled=1 and colleget.Enabled=1
+			and u.Enabled=1 and t.Enabled=1
+			<if test="course_name != null and course_name!='' ">
+				AND c.CourseName like concat
+				("%",#{course_name},"%")
+			</if>
+			<if test="cName != null and cName != ''">
+				AND ct.Cname like concat
+				("%",#{cName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="majorName != null and majorName != ''">
+				AND m.major_name like concat
+				("%",#{majorName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="collegeName != null and collegeName != ''">
+				AND colleget.CeName like concat
+				("%",#{collegeName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="schoolName != null and schoolName != ''">
+				AND u.UnName like concat
+				("%",#{schoolName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="tName != null and tName != ''">
+				AND t.TName like concat
+				("%",#{tName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="teacherDuan!=null and teacherDuan!=''">
+				and r.TID =#{teacherDuan}
+			</if>
+
+		</where>
+	</select>
+
+	<select id="findByIdMany" resultMap="CourseArrangeEntity"
+		parameterType="int">
+		select * from CLASS_TEACHER_COURSETABLE where Enabled=1
+		and
+		CID =
+		#{class_id}
+	</select>
+
+	<select id="findByCourseIdMany" resultMap="CourseArrangeEntity"
+		parameterType="int">
+		select * from CLASS_TEACHER_COURSETABLE where Enabled = 1
+		and
+		CourseID =
+		#{course_id}
+	</select> 
+
+
+</mapper> 

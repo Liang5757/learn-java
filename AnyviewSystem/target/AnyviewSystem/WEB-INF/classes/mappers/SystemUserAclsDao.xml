@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.SystemUserAclsDao">
+
+	<resultMap id="UserAclsResultMap"
+		type="cn.youyitech.anyview.system.entity.SystemUserAcls">
+		<id property="id" column="ID" />
+		<!-- <result property="aclId" column="ACL_ID" /> <result property="roleId" 
+			column="ROLE_ID" /> -->
+		<!-- <result property="permission" column="PERMISSION" /> -->
+		<!-- <collection property="aclList" javaType=java.util.ArrayList " ofType="cn.youyitech.anyview.system.entity.SystemAcl" 
+			select="cn.youyitech.anyview.system.dao.SystemAclDao.find" column="ID" </collection> -->
+	</resultMap>
+
+	<resultMap id="KWZUserAclsResultMap"
+		type="cn.youyitech.anyview.system.entity.SystemUserAcls">
+		<id property="id" column="ID" />
+
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		ID, ACL_ID, ROLE_ID
+	</sql>
+
+	<sql id="base_value_column">
+		#{id}, #{aclId}, #{roleId}
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		<if test="id != null">
+			AND T_SYSTEM_USER_ACLS.ID = #{id}
+		</if>
+		<if test="roleId != null">
+			AND T_SYSTEM_USER_ACLS.ROLE_ID = #{roleId}
+		</if>
+		<if test="aclId != null">
+			AND T_SYSTEM_USER_ACLS.ACL_ID = #{aclId}
+		</if>
+	</sql>
+
+	<!-- 设置语句 -->
+	<sql id="set_column">
+		<if test="roleId != null">
+			T_SYSTEM_USER_ACLS.ROLE_ID = #{roleId},
+		</if>
+		<if test="aclId != null">
+			T_SYSTEM_USER_ACLS.ACL_ID = #{aclId},
+		</if>
+	</sql>
+
+	<!-- 根据ID查询 -->
+	<select id="find" resultMap="UserAclsResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM T_SYSTEM_USER_ACLS
+		WHERE ID = #{id}
+	</select>
+
+	<!-- 查询所有 -->
+	<select id="findAll" resultMap="UserAclsResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM T_SYSTEM_USER_ACLS
+	</select>
+
+	<!-- 统计记录数 -->
+	<select id="count" resultType="long">
+		SELECT COUNT(*) FROM T_SYSTEM_USER_ACLS
+		<where>
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<!-- 插入 -->
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.SystemUserAcls">
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="id">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+		INSERT T_SYSTEM_USER_ACLS
+		(
+		<include refid="base_column" />
+		)
+		VALUES (
+		<include refid="base_value_column" />
+		)
+	</insert>
+
+	<!-- 修改 -->
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.SystemUserAcls">
+		UPDATE T_SYSTEM_USER_ACLS
+		<set>
+			<include refid="set_column" />
+		</set>
+		WHERE ID = #{id}
+	</update>
+
+	<!-- 删除单条记录 -->
+	<delete id="delete">
+		DELETE FROM T_SYSTEM_USER_ACLS
+		WHERE ID = #{id}
+	</delete>
+
+	<!-- 删除多条记录 -->
+	<delete id="deleteAll">
+		DELETE FROM T_SYSTEM_USER_ACLS
+		WHERE ID IN
+		<foreach item="UserAclsId" index="index" collection="ids"
+			open="(" separator="," close=")">
+			#{UserAclsId}
+		</foreach>
+	</delete>
+
+	<!-- 根据参数查询列表 -->
+	<select id="findByParams" resultMap="UserAclsResultMap">
+		SELECT
+		<include refid="base_column" />
+		, PERMISSION
+		FROM T_SYSTEM_USER_ACLS
+		LEFT JOIN T_SYSTEM_ACL
+		ON
+		T_SYSTEM_USER_ACLS.ACL_ID = T_SYSTEM_ACL.ID
+		<where>
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="getAclsByRoleId" resultMap="UserAclsResultMap">
+		SELECT
+		<include refid="base_column" />
+		, T_SYSTEM_ACL.*
+		FROM T_SYSTEM_USER_ACLS
+		LEFT JOIN T_SYSTEM_ACL
+		ON
+		T_SYSTEM_USER_ACLS.ACL_ID = T_SYSTEM_ACL.ID
+		WHERE
+		T_SYSTEM_USER_ACLS.ROLE_ID = #{roleId}
+	</select>
+
+	<!-- 分页查询 -->
+	<select id="findByPage" resultMap="UserAclsResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM T_SYSTEM_USER_ACLS
+		<where>
+			<include refid="where_column" />
+		</where>
+	</select>
+
+</mapper>

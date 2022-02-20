@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.youyitech.anyview.system.dao.ScoreTableDao">
+	<resultMap type="cn.youyitech.anyview.system.entity.ScoreTable"
+		id="ScoreTableResult">
+		<id property="id" column="ID" />
+		<result property="sID" column="SID" />
+		<result property="cID" column="CID" />
+		<result property="vID" column="VID" />
+		<association property="student" column="SID"
+			javaType="cn.youyitech.anyview.system.entity.Student" select="cn.youyitech.anyview.system.dao.StudentDao.find">
+			<id property="id" column="SID" />
+		</association>
+		<association property="classSystem" column="CID"
+			javaType="cn.youyitech.anyview.system.entity.ClassEntity" select="cn.youyitech.anyview.system.dao.ClassDao.find">
+			<id property="id" column="CID" />
+		</association>
+		<association property="workingTable" column="VID"
+			javaType="cn.youyitech.anyview.system.entity.WorkingTable" select="cn.youyitech.anyview.system.dao.WorkingTableDao.find">
+			<id property="id" column="VID" />
+		</association>
+	</resultMap>
+	
+	<insert id="insert">
+		insert into ScoreTable
+		(SID,CID,VID,PassNum,TotalTime,CorrectFlag,UpdateTime,Updater,Creater,CreateTime,Enabled)
+		values
+		(#{sID},#{cID},#{vID},#{passNum},#{totalTime},#{correctFlag},now(),#{updater},#{creater},now(),#{enabled})
+	</insert>
+
+	<select id="findByPage" parameterType="cn.youyitech.anyview.system.entity.ScoreTable"
+		resultMap="ScoreTableResult">
+		select * from ScoreTable s
+		inner join CLASS_TEACHER_COURSETABLE ctc on ctc.CID = s.CID
+		<where>
+		 s.Enabled=1 and ctc.Enabled=1
+		<if test="vID != null and vID != ''">
+			and s.VID like concat('%',#{vID},'%')
+		</if>
+		<if test="cID != null and cID != ''">
+			and s.CID=#{cID}
+		</if>
+		<if test="teacherId != null and teacherId != ''">
+			AND ctc.TID = #{teacherId}
+		</if>
+		</where>
+	</select>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.ScoreTable">
+		update ScoreTable set
+		SID=#{sID},VID=#{vID},CID=#{cID},Score=#{score},`Rank`=#{rank},PassNum=#{passNum},TotalTime=#{totalTime},CorrectFlag=#{correctFlag},
+		Updater=#{updater},UpdateTime=now(),AttitudeScore=#{attitudeScore},PaperScore=#{paperScore}
+		where
+		ID=#{id}
+	</update>
+	
+	<update id="updateBySIDAndVIDAndCID" parameterType="cn.youyitech.anyview.system.entity.ScoreTable">
+		update ScoreTable set
+		<if test="sID != null and sID !='' ">
+			SID=#{sID},
+		</if>
+		<if test="vID != null and vID !='' ">
+			VID=#{vID},
+		</if>
+		<if test="cID != null and cID !='' ">
+			CID=#{cID},
+		</if>
+		<if test="score != null and score !='' ">
+			Score=#{score},
+		</if>
+		<if test="rank != null and rank !='' ">
+			`Rank`=#{rank},
+		</if>
+		<if test="passNum != null and passNum !='' ">
+			PassNum=#{passNum},
+		</if>
+		<if test="totalTime != null and totalTime !='' ">
+			TotalTime=#{totalTime},
+		</if>
+		<if test="correctFlag != null and correctFlag !='' ">
+			CorrectFlag=#{correctFlag},
+		</if>
+		<if test="updater != null and updater !='' ">
+			Updater=#{updater},
+		</if>
+		<if test="attitudeScore != null and attitudeScore !='' ">
+			AttitudeScore=#{attitudeScore}
+		</if>
+		<if test="paperScore != null and paperScore !='' ">
+			PaperScore=#{paperScore},
+		</if>
+		<if test="passNum != null and passNum !='' ">
+			PassNum=#{passNum},
+		</if>
+
+		UpdateTime=now()
+		where
+		SID=#{sID} and VID=#{vID} and CID=#{cID} and Enabled=1
+	</update>
+
+	<select id="find" resultMap="ScoreTableResult">
+		select *from ScoreTable where
+		Enabled=1 and
+		ID=#{id}
+	</select>
+
+	<select id="findAll" resultMap="ScoreTableResult">
+		select *from ScoreTable where
+		Enabled=1
+	</select>
+<!--	cn.youyitech.anyview.system.entity.ScoreTable-->
+	<select id="findByParams" resultMap="ScoreTableResult">
+		select *from ScoreTable where
+		Enabled=1
+		<if test="id != null and id != ''">
+			and ID=#{id}
+		</if>
+		<if test="vID != null and vID != ''">
+			and VID=#{vID}
+		</if>
+		<if test="cID != null and cID != ''">
+			and CID=#{cID}
+		</if>
+	</select>
+	
+	<select id="findBySIDAndVIDAndCID" parameterType="cn.youyitech.anyview.system.entity.ScoreTable"
+	resultType="cn.youyitech.anyview.system.entity.ScoreTable">
+		select * from ScoreTable where
+		Enabled=1
+		<if test="cID != null and cID != '' and cID != 0">
+			and CID=#{cID}
+		</if>
+		<if test="sID != null and sID != '' and sID != 0">
+			and SID=#{sID}
+		</if>
+		<if test="vID != null and vID != '' and vID != 0">
+			and VID=#{vID}
+		</if>
+	</select>
+
+	<!-- 排名 -->
+	<update id="updateRankByScore" parameterType="cn.youyitech.anyview.system.entity.ScoreTable">
+		update ScoreTable a join (SELECT *, @curRank := @curRank + 1 AS ank
+		FROM ScoreTable p, (
+		SELECT @curRank := 0
+		) q
+		<if test="scoreTableIds != null and scoreTableIds != ''">
+			where p.ID in
+			<foreach collection="scoreTableIds" open="(" close=")"
+				separator="," item="items">#{items} </foreach>
+		</if>
+		<if test="vID != null and vID != ''">
+			and p.VID=#{vID}
+		</if>
+		ORDER BY Score desc) as b on a.ID=b.ID
+		set a.Rank= b.ank
+		where
+		a.Enabled=1
+	</update>
+
+	<select id="findRankByScore" resultMap="ScoreTableResult"
+		parameterType="cn.youyitech.anyview.system.entity.ScoreTable">
+		select *from ScoreTable where
+		Enabled=1
+		<if test="scoreTableIds != null and scoreTableIds != ''">
+			and ID in
+			<foreach collection="scoreTableIds" open="(" close=")"
+				separator="," item="items">#{items} </foreach>
+		</if>
+		<if test="vID != null and vID != ''">
+			and VID=#{vID}
+		</if>
+		ORDER BY Score desc
+	</select>
+
+</mapper>

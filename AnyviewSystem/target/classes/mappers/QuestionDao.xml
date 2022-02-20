@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.QuestionDao">
+
+	<resultMap id="QuestionResultMap" type="cn.youyitech.anyview.system.entity.Question">
+		<id property="id" column="PID" />
+		<result property="question_name" column="PName" />
+		<result property="chapter" column="chapter" />
+		<result property="public_level" column="public_level" />
+		<result property="specific_school" column="specific_school" />
+		<result property="difficulty" column="Degree" />
+		<result property="state" column="state" />
+		<result property="remark" column="PMemo" />
+		<result property="question_bank_id" column="LID" />
+		<result property="content" column="PContent" />
+		<result property="created_person" column="CreatePerson" />
+		<result property="created_date" column="CreateTime" />
+		<result property="update_person" column="UpdatePerson" />
+		<result property="update_date" column="UpdateTime" />
+		<result property="enabled" column="Enabled" />
+		<association property="questionBank" column="LID"
+			javaType="QuestionBank"
+			select="cn.youyitech.anyview.system.dao.QuestionBankDao.find">
+			<id property="id" column="LID" />
+		</association>
+			
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		PID,PName ,chapter ,public_level ,specific_school ,Degree ,state ,PMemo,LID,PContent
+		,CreatePerson,CreateTime,UpdatePerson,UpdateTime,Enabled
+	</sql>
+
+	<sql id="base_value_column">
+		#{id},#{question_name} ,#{chapter},#{public_level}, #{specific_school},#{difficulty} ,#{state} ,#{remark},#{question_bank_id}
+		,#{content},#{created_person} ,#{created_date},#{update_person},#{update_date},#{enabled} 
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		<if test="id != null and id != ''">
+			AND PROBLEMTABLE.PID = #{id}
+		</if>
+		<if test="question_name != null and question_name != ''">
+			AND PROBLEMTABLE.PName =
+			#{question_name,jdbcType=VARCHAR}
+		</if>
+		<if test="chapter != null and chapter != ''">
+			AND PROBLEMTABLE.chapter =
+			#{chapter,jdbcType=VARCHAR}
+		</if>
+		<if test="public_level != null  and public_level != ''">
+			AND PROBLEMTABLE.public_level =
+			#{public_level}
+		</if>
+		<if test="specific_school != null and specific_school != ''">
+			AND PROBLEMTABLE.specific_school =
+			#{specific_school,jdbcType=VARCHAR}
+		</if>
+		<if test="difficulty != null and difficulty != ''">
+			AND PROBLEMTABLE.Degree =
+			#{difficulty,jdbcType=FLOAT}
+		</if>
+		<if test="state != null and state != ''">
+			AND PROBLEMTABLE.state =
+			#{state,jdbcType=VARCHAR}
+		</if>
+		<if test="remark != null and remark != ''">
+			AND PROBLEMTABLE.PMemo =
+			#{remark,jdbcType=VARCHAR}
+		</if>
+		<if test="question_bank_id != null and question_bank_id !=''" >
+			AND PROBLEMTABLE.LID = #{question_bank_id}
+		</if>
+		<if test="content != null and content !=''" >
+			AND PROBLEMTABLE.PContent = #{content}
+		</if>
+	</sql>
+
+	<sql id="set_column">
+		<if test="id != null">
+			PID = #{id},
+		</if>
+		<if test="question_name != null and question_name != ''">
+			PName = #{question_name,jdbcType=VARCHAR},
+		</if>
+		<if test="chapter != null and chapter != ''">
+			chapter = #{chapter,jdbcType=VARCHAR},
+		</if>
+		<if test="public_level != null">
+			public_level = #{public_level},
+		</if>
+		<if test="specific_school != null and specific_school != ''">
+			specific_school = #{specific_school,jdbcType=VARCHAR},
+		</if>
+		<if test="difficulty != null">
+			Degree = #{difficulty,jdbcType=FLOAT},
+		</if>
+		<if test="state != null and state != ''">
+			state = #{state,jdbcType=VARCHAR},
+		</if>
+		<if test="remark != null and remark != ''">
+			PMemo = #{remark,jdbcType=VARCHAR},
+		</if>
+		<if test="question_bank_id != null">
+			LID = #{question_bank_id},
+		</if>
+		<if test="content != null and content !=''" >
+			PContent = #{content}
+		</if>
+		
+	</sql>
+
+
+	<select id="find" resultMap="QuestionResultMap">
+		SELECT <include refid="base_column"/>
+		FROM PROBLEMTABLE
+		WHERE Enabled=1 and PID=#{id}
+	</select>
+
+
+	<select id="findAll" resultMap="QuestionResultMap">
+		SELECT <include refid="base_column"/>
+		FROM PROBLEMTABLE 
+		WHERE Enabled=1 
+	</select>
+	
+	<select id="findTotal" resultMap="QuestionResultMap">
+		SELECT
+		<include refid="base_column"/>
+		FROM PROBLEMTABLE
+	</select>
+	
+	<select id="findByAttribute" parameterType="cn.youyitech.anyview.system.entity.Question"
+			resultMap="QuestionResultMap">
+		SELECT
+		<include refid="base_column"/>
+		FROM PROBLEMTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+	
+	<select id="findByFilterQuestionName" parameterType="cn.youyitech.anyview.system.entity.Question"
+			resultMap="QuestionResultMap">
+		SELECT
+		<include refid="base_column"/>
+		FROM PROBLEMTABLE
+		<where>
+			Enabled=1
+			<if test="question_name != null and question_name != ''">
+				AND PName like concat ("%",#{question_name,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="question_bank_id != null and question_bank_id != ''">
+				AND LID = #{question_bank_id}
+			</if>
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.Question">
+		INSERT INTO PROBLEMTABLE
+		(
+		<include refid="base_column" />
+		)
+		VALUES (
+		<include refid="base_value_column" />
+		)
+	</insert>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.Question">
+		UPDATE PROBLEMTABLE
+		<set>
+			<include refid="set_column" />
+		</set>
+		WHERE PID = #{id}
+	</update>
+
+	<delete id="delete">
+		UPDATE PROBLEMTABLE
+		set Enabled=0
+		WHERE PID = #{id}
+	</delete>
+	
+	<delete id="deleteByBankId">
+		UPDATE PROBLEMTABLE
+		set Enabled=0
+		WHERE LID = #{question_bank_id}
+	</delete>
+
+	<delete id="deleteAll">
+		UPDATE PROBLEMTABLE
+		set Enabled=0
+		WHERE PID IN
+		<foreach item="questionId" index="index" collection="ids"
+			open="(" separator="," close=")">
+			#{questionId}
+		</foreach>
+	</delete>
+
+	<select id="findByParams" resultMap="QuestionResultMap">
+		SELECT
+		<include refid="base_column"/>
+		FROM PROBLEMTABLE
+		<where>
+			Enabled=1
+			<if test="tt_question_bank_id!=null and tt_question_bank_id!=''">
+				and LID=#{tt_question_bank_id}
+			</if>
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByPage" resultMap="QuestionResultMap">
+		SELECT
+		<include refid="base_column"/>
+		FROM PROBLEMTABLE
+		<where>
+			Enabled=1
+			<if test="question_name != null and question_name != ''">
+				AND PName like concat ("%",#{question_name,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="chapterName != null and chapterName != ''">
+				AND chapter like concat ("%",#{chapterName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="question_bank_id != null and question_bank_id != ''">
+				AND LID like concat ("%",#{question_bank_id},"%")
+			</if>
+		</where>
+	</select>
+
+</mapper> 

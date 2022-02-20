@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.youyitech.anyview.system.dao.MajorDao">
+	<resultMap type="cn.youyitech.anyview.system.entity.Major" id="MajorResult">
+		<id property="id" column="id" />
+		<association property="college" column="college_id"
+			javaType="cn.youyitech.anyview.system.entity.College"
+			select="cn.youyitech.anyview.system.dao.CollegeDao.findColleageAndSchoolById">
+			<id property="id" column="CeID" />
+		</association>
+		<collection property="majorClassList" column="id"
+			javaType="java.util.ArrayList" ofType="cn.youyitech.anyview.system.entity.ClassEntity"
+			select="cn.youyitech.anyview.system.dao.ClassDao.findByIdMany">
+		</collection>
+	</resultMap>
+	
+	<resultMap type="cn.youyitech.anyview.system.entity.Major" id="excelResultMap">
+		<id property="id" column="id" />
+		<result property="collegeId" column="college_id" />
+		<result property="majorName" column="major_name" />
+	</resultMap>
+
+	<!-- 查询专业 -->
+	<select id="findByPage" parameterType="cn.youyitech.anyview.system.entity.Major" resultMap="MajorResult">
+		select m.*,c.CeName,u.UnName from major m
+		inner join CollegeTable c on c.CeID = m.college_id
+		inner join UniversityTable u on c.UnID = u.UnID
+		where m.Enabled=1 and c.Enabled=1 and u.Enabled=1
+		<if test="majorName != null and majorName != ''">
+			and m.major_name like concat('%',#{majorName},'%')
+		</if>
+		<if test="collegeName != null and collegeName != ''">
+			AND c.CeName like concat
+			("%",#{collegeName,jdbcType=VARCHAR},"%")
+		</if>
+		<if test="schoolName != null and schoolName != ''">
+			AND u.UnName like concat
+			("%",#{schoolName,jdbcType=VARCHAR},"%")
+		</if>
+		<if test="id != null and id != ''">
+			and m.id=#{id}
+		</if>
+	</select>
+
+	<!-- 添加专业 -->
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.Major">
+		insert into major
+		(college_id,major_name,major_updater,major_update_time,major_creater,major_create_time)
+		values(#{collegeId},#{majorName},#{majorUpdater},now(),#{majorCreater},now());
+	</insert>
+
+	<!-- 修改专业 -->
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.Major">
+	update major set
+	college_id=#{collegeId},major_name=#{majorName},
+	major_updater=#{majorUpdater},major_update_time=now() where
+	id=#{id}
+	</update>
+
+	<!-- 删除专业 -->
+	<update id="delete" parameterType="Long">
+		update major set Enabled=0
+		where
+		id =#{id}
+	</update>
+
+	<!-- 一对一，根据主键查找专业 -->
+	<select id="findById" resultMap="MajorResult" parameterType="int">
+		select * from major where Enabled=1 and id = #{id}
+	</select>
+
+	<!-- 1对多查找，通过college的collegeId找到该学院的所有专业 -->
+	<select id="findByIdMany" resultMap="MajorResult" parameterType="int">
+		select * from major where Enabled=1 and college_id =
+		#{collegeId}
+	</select>
+	
+	<select id="findByCollegeIdAndMajorName" resultMap="excelResultMap" 
+			parameterType="cn.youyitech.anyview.system.entity.Major">
+		select id,college_id,major_name from major where Enabled=1 and college_id =
+		#{collegeId} and major_name = #{majorName}
+	</select>
+
+	<select id="find" resultMap="MajorResult">
+		select *from major where Enabled=1
+		and
+		id=#{id,jdbcType=BIGINT}
+	</select>
+	
+	<select id="findAll" resultMap="MajorResult">
+		select *from major where Enabled=1
+	</select>
+
+	<select id="findByParams" resultMap="MajorResult">
+		select *from major where
+		Enabled=1 and
+		major_name=#{majorName}
+		<if test="id != null and id != ''">
+			and id=#{id}
+		</if>
+	</select>
+</mapper>

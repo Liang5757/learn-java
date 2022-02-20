@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.ClassAndStudentDao">
+
+	<resultMap id="ClassAndStudentResultMap"
+		type="cn.youyitech.anyview.system.entity.ClassAndStudent">
+		<id property="id" column="ID" />
+		<result property="student_class_id" column="CID" />
+		<result property="student_id" column="SID" />
+		<result property="enabled" column="Status" />
+		<association property="classSystem" column="CID" javaType="ClassEntity"
+			select="cn.youyitech.anyview.system.dao.ClassDao.find">
+			<id property="id" column="CID" />
+		</association>
+		<association property="student" column="SID" javaType="Student"
+			select="cn.youyitech.anyview.system.dao.StudentDao.findByClassAndStudent">
+			<id property="id" column="SID" />
+		</association>
+
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		ID ,CID ,SID,Status
+	</sql>
+
+	<sql id="base_value_column">
+		#{id,jdbcType=BIGINT} ,#{student_class_id}
+		,#{student_id},#{enabled}
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		<if test="id != null">
+			AND CLASS_STUDENTTABLE.ID = #{id,jdbcType=BIGINT}
+		</if>
+		<if test="student_class_id != null ">
+			AND CLASS_STUDENTTABLE.CID = #{student_class_id}
+		</if>
+		<if test="student_id != null">
+			AND CLASS_STUDENTTABLE.SID = #{student_id}
+		</if>
+	</sql>
+
+	<sql id="set_column">
+		<if test="id != null">
+			ID = #{id,jdbcType=BIGINT},
+		</if>
+		<if test="student_class_id != null">
+			CID = #{student_class_id},
+		</if>
+		<if test="student_id != null">
+			SID = #{student_id},
+		</if>
+	</sql>
+
+
+	<select id="find" resultMap="ClassAndStudentResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_STUDENTTABLE
+		WHERE Status=1 and ID=#{id,jdbcType=BIGINT}
+	</select>
+
+
+	<select id="findAll" resultMap="ClassAndStudentResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_STUDENTTABLE
+		WHERE Status=1
+	</select>
+
+	<select id="findTotal" resultMap="ClassAndStudentResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_STUDENTTABLE
+	</select>
+
+	<select id="findByStudentID" resultMap="ClassAndStudentResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_STUDENTTABLE
+		WHERE SID = #{student_id} and Status=1
+	</select>
+
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.ClassAndStudent">
+		INSERT INTO CLASS_STUDENTTABLE
+		(
+		<include refid="base_column" />
+		)
+		VALUES (
+		<include refid="base_value_column" />
+		)
+	</insert>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.ClassAndStudent">
+		UPDATE CLASS_STUDENTTABLE
+		<set>
+			<include refid="set_column" />
+		</set>
+		WHERE ID = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="delete" parameterType="Long">
+		update CLASS_STUDENTTABLE
+		set Status=0
+		WHERE ID = #{id,jdbcType=BIGINT}
+	</update>
+
+	<delete id="deleteAll">
+		DELETE FROM CLASS_STUDENTTABLE
+		WHERE ID IN
+		<foreach item="classAndStudentId" index="index" collection="ids"
+			open="(" separator="," close=")">
+			#{classAndStudentId}
+		</foreach>
+	</delete>
+
+	<delete id="deleteByStudentID">
+		update CLASS_STUDENTTABLE set Status=0
+		where
+		SID = #{id}
+	</delete>
+
+	<select id="findByParams" resultMap="ClassAndStudentResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_STUDENTTABLE
+		<where>
+			Status=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByPage" resultMap="ClassAndStudentResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASS_STUDENTTABLE
+		<where>
+			Status=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByIdMany" resultMap="ClassAndStudentResultMap"
+		parameterType="int">
+		select * from CLASS_STUDENTTABLE where Status=1 and
+		CID = #{student_class_id}
+	</select>
+	
+	<select id="findByClassID" resultMap="ClassAndStudentResultMap"
+		parameterType="int">
+		select * from CLASS_STUDENTTABLE where Status=1 and
+		CID = #{cid}
+	</select>
+	
+	<select id="howMany" resultType="java.lang.Integer"
+		parameterType="int">
+		SELECT COUNT(1) FROM class_studenttable WHERE CID=#{cid} AND STATUS=1
+	</select>
+
+
+
+</mapper> 

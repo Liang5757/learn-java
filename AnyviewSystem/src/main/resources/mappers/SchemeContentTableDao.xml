@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.youyitech.anyview.system.dao.SchemeContentTableDao">
+	<sql id="set_column">
+		<if test="StartTime != null and StartTime != ''">
+			StartTime=#{StartTime},
+		</if>
+		<if test="FinishTime != null and FinishTime != ''">
+			FinishTime=#{FinishTime},
+		</if>
+		<if test="UpdateTime != null and UpdateTime != ''">
+			UpdateTime=now(),
+		</if>
+	</sql>
+
+	<sql id="order_by">
+		<if test="VChapNameSort == 'desc'">
+			b+0 desc
+		</if>
+		<if test="VChapNameSort == 'asc'">
+			b+0 asc
+		</if>
+		<if test="difficultySort == 'asc'">
+			difficulty asc
+		</if>
+		<if test="difficultySort == 'desc'">
+			difficulty desc
+		</if>
+		;
+	</sql>
+
+	<resultMap type="cn.youyitech.anyview.system.entity.SchemeContentTable"
+		id="SchemeContentTableResult">
+		<id property="ID" column="ID" />
+		<result property="VID" column="VID" />
+		<result property="PID" column="PID" />
+		<association property="workingTable" column="VID"
+			javaType="cn.youyitech.anyview.system.entity.WorkingTable" select="cn.youyitech.anyview.system.dao.WorkingTableDao.find">
+			<id property="id" column="VID" />
+		</association>
+		<association property="question" column="PID"
+			javaType="cn.youyitech.anyview.system.entity.Question" select="cn.youyitech.anyview.system.dao.QuestionDao.find">
+			<id property="id" column="PID" />
+		</association>
+	</resultMap>
+
+	<select id="findContent"
+		parameterType="cn.youyitech.anyview.system.entity.SchemeContentTable"
+		resultMap="SchemeContentTableResult">
+		select *
+		<if test="VChapNameSort != null and  VChapNameSort != ''">
+			, substring(TRIM(REPLACE(VChapName,'章',' ')),2) as b
+		</if>
+		from SchemeContentTable where Enabled=1
+		<if test="VPName != null and VPName != ''">
+			and VPName like concat ('%',#{VPName},'%')
+		</if>
+		<if test="VID != null and VID != ''">
+			and VID =#{VID}
+		</if>
+		<if test="difficultySort != '' or VChapNameSort != ''">
+			ORDER BY
+			<include refid="order_by"></include>
+		</if>
+	</select>
+
+	<insert id="insert"
+		parameterType="cn.youyitech.anyview.system.entity.SchemeContentTable">
+		insert into SchemeContentTable
+		(VID,PID,VPName,Status,Score,StartTime,FinishTime,UpdateTime,difficulty,VChapName,Updater)
+		values
+		(#{VID},#{PID},#{VPName},#{Status},#{Score},#{StartTime},#{FinishTime},now(),#{difficulty},#{VChapName},#{Updater})
+	</insert>
+
+	<update id="update"
+		parameterType="cn.youyitech.anyview.system.entity.SchemeContentTable">
+		update SchemeContentTable
+		<set>
+			<include refid="set_column"></include>
+		</set>
+		where ID=#{ID}
+	</update>
+
+	<update id="delete" parameterType="Long">
+		update SchemeContentTable set
+		Enabled=0
+		where
+		ID =#{ID}
+	</update>
+
+	<update id="deleteContent" parameterType="Long">
+		update SchemeContentTable set
+		Enabled=0
+		where
+		VID =#{VID}
+	</update>
+
+	<select id="find" resultMap="SchemeContentTableResult">
+		select *from SchemeContentTable
+		where Enabled=1
+		and
+		ID=#{ID}
+	</select>
+
+	<select id="findByParams" resultMap="SchemeContentTableResult">
+		select *from SchemeContentTable where
+		Enabled=1
+		<if test="VPName != null and VPName != ''">
+			and VPName=#{VPName}
+		</if>
+		<if test="PID != null and PID != ''">
+			and PID=#{PID}
+		</if>
+		<if test="VID != null and VID != ''">
+			and VID=#{VID}
+		</if>
+	</select>
+
+	<select id="findAll" resultMap="SchemeContentTableResult">
+		select *from SchemeContentTable
+		where Enabled=1
+	</select>
+	<select id="getSchemeContentList" resultMap="SchemeContentTableResult">
+		select *from SchemeContentTable
+		where VID=#{Vid} AND PID=#{Pid} AND Enabled=1
+	</select>
+</mapper>

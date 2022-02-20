@@ -1,0 +1,7 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Sat Nov 30 20:22:33 CST 2019
+http\://maven.repository.redhat.com/techpreview/all/.error=Could not transfer artifact org.apache\:apache\:pom\:9 from/to eap (http\://maven.repository.redhat.com/techpreview/all)\: Connection reset
+http\://mvn.gt.igexin.com/nexus/content/repositories/releases/.lastUpdated=1575116553508
+http\://mvn.gt.igexin.com/nexus/content/repositories/releases/.error=
+http\://maven.aliyun.com/nexus/content/groups/public/.lastUpdated=1575116553885
+@default-eap-http\://maven.repository.redhat.com/techpreview/all/.lastUpdated=1575116553442

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zl.dao.IUserDao">
+    <!-- 查询所有 -->
+    <select id="findAll" resultType="com.zl.domain.User">
+        <!--select id as userId,username as userName,address as userAddress,sex as userSex,birthday as userBirthday from user;-->
+        select * from user;
+    </select>
+
+    <!-- 查询用户是否登陆 -->
+    <select id="findUser" parameterType="java.lang.String" resultType="com.zl.domain.User">
+        select * from user where username = #{username} and password = #{password}
+    </select>
+</mapper>

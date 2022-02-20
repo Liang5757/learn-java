@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.ClassDao">
+
+	<resultMap id="ClassSystemResultMap"
+		type="cn.youyitech.anyview.system.entity.ClassEntity">
+		<id property="id" column="CID" />
+		<result property="className" column="Cname" />
+		<result property="year" column="StartYear" />
+		<result property="created_person" column="CreatePerson" />
+		<result property="created_date" column="CreateTime" />
+		<result property="update_person" column="UpdatePerson" />
+		<result property="update_date" column="UpdateTime" />
+		<result property="enabled" column="Enabled" />
+		<association property="major" column="MID" javaType="Major"
+			select="cn.youyitech.anyview.system.dao.MajorDao.findById">
+			<id property="id" column="id" />
+		</association>
+
+		<collection property="classCourseArrangeList" column="CID"
+			javaType="java.util.ArrayList" ofType="CourseArrange"
+			select="cn.youyitech.anyview.system.dao.CourseArrangeDao.findByIdMany">
+		</collection>
+
+		<collection property="classStudentList" column="CID"
+			javaType="java.util.ArrayList" ofType="ClassAndStudent"
+			select="cn.youyitech.anyview.system.dao.ClassAndStudentDao.findByIdMany">
+		</collection>
+
+
+	</resultMap>
+	
+	<resultMap id="excelResultMap" type="cn.youyitech.anyview.system.entity.ClassEntity">
+		<id property="id" column="CID" />
+		<result property="className" column="Cname" />
+		<result property="major_id" column="MID" />
+		<result property="year" column="StartYear" />
+	</resultMap>
+
+
+	<resultMap id="ClassSystemResult"
+		type="cn.youyitech.anyview.system.entity.ClassEntity">
+		<id property="id" column="CID" />
+		<result property="className" column="Cname" />
+		<result property="year" column="StartYear" />
+		<result property="created_person" column="CreatePerson" />
+		<result property="created_date" column="CreateTime" />
+		<result property="update_person" column="UpdatePerson" />
+		<result property="update_date" column="UpdateTime" />
+		<result property="enabled" column="Enabled" />
+		<association property="major" column="MID" javaType="Major"
+			select="cn.youyitech.anyview.system.dao.MajorDao.findById">
+			<id property="id" column="id" />
+		</association>
+
+		<collection property="classCourseArrangeList" column="CID"
+			javaType="java.util.ArrayList" ofType="CourseArrange"
+			select="cn.youyitech.anyview.system.dao.CourseArrangeDao.findByIdMany">
+		</collection>
+
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		CID ,Cname ,MID,
+		StartYear,CreatePerson ,CreateTime ,
+		UpdatePerson ,UpdateTime ,Enabled
+	</sql>
+
+	<sql id="base_value_column">
+		#{id} ,#{className}
+		,#{major_id} ,#{year}
+		,#{created_person} ,#{created_date}
+		,#{update_person} ,#{update_date}
+		,#{enabled}
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		<if test="id != null and id != ''">
+			AND CLASSTABLE.CID = #{id}
+		</if>
+		<if test="className != null and className != ''">
+			AND CLASSTABLE.Cname =
+			#{className,jdbcType=VARCHAR}
+		</if>
+		<if test="major_id != null and major_id != ''">
+			AND CLASSTABLE.MID = #{major_id}
+		</if>
+		<if test="year != null and year != ''">
+			AND CLASSTABLE.StartYear = #{year}
+		</if>
+
+	</sql>
+
+	<sql id="set_column">
+		<if test="id != null">
+			CID = #{id},
+		</if>
+		<if test="className != null and className != ''">
+			Cname = #{className,jdbcType=VARCHAR},
+		</if>
+		<if test="major_id != null">
+			MID = #{major_id},
+		</if>
+		<if test="year != null">
+			StartYear = #{year},
+		</if>
+		<if test="created_person != null and created_person != ''">
+			CreatePerson = #{created_person,jdbcType=VARCHAR},
+		</if>
+		<if test="created_date != null and created_date != ''">
+			CreateTime = #{created_date},
+		</if>
+		<if test="update_person != null and update_person != ''">
+			UpdatePerson = #{update_person,jdbcType=VARCHAR},
+		</if>
+		<if test="update_date != null and update_date != ''">
+			UpdateTime = #{update_date},
+		</if>
+
+	</sql>
+
+
+	<select id="find" resultMap="ClassSystemResult">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASSTABLE
+		WHERE Enabled=1 and CID=#{id}
+	</select>
+
+
+	<select id="findAll" resultMap="ClassSystemResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASSTABLE
+		WHERE Enabled=1
+	</select>
+
+	<select id="findTotal" resultMap="ClassSystemResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASSTABLE
+	</select>
+	
+	<select id="findByAttribute" parameterType="cn.youyitech.anyview.system.entity.ClassEntity"
+			resultMap="ClassSystemResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASSTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+	
+	<select id="findByMajorIdAndClassName" parameterType="cn.youyitech.anyview.system.entity.ClassEntity"
+			resultMap="excelResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASSTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.ClassEntity">
+		INSERT INTO CLASSTABLE
+		(
+		<include refid="base_column" />
+		)
+		VALUES (
+		<include refid="base_value_column" />
+		)
+	</insert>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.ClassEntity">
+		UPDATE CLASSTABLE
+		<set>
+			<include refid="set_column" />
+		</set>
+		WHERE CID = #{id}
+	</update>
+	<update id="delete" parameterType="Long">
+		update CLASSTABLE set
+		Enabled=0
+		where
+		CID =#{id}
+	</update>
+
+	<delete id="deleteAll">
+		DELETE FROM CLASSTABLE
+		WHERE CID IN
+		<foreach item="classId" index="index" collection="ids" open="("
+			separator="," close=")">
+			#{classId}
+		</foreach>
+	</delete>
+
+	<select id="findByParams" resultMap="ClassSystemResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM CLASSTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByPage" resultMap="ClassSystemResultMap">
+		SELECT c.CID ,c.Cname ,c.MID,
+		c.StartYear,c.CreatePerson ,c.CreateTime ,
+		c.UpdatePerson ,c.UpdateTime,m.major_name,
+		colleget.cename,u.UnName
+		FROM CLASSTABLE c
+		inner join major m on m.id = c.MID
+		inner join
+		CollegeTable colleget on colleget.CeID = m.college_id
+		inner join
+		UniversityTable u on colleget.UnID = u.UnID
+		<where>
+			c.Enabled=1 and m.Enabled=1 and colleget.Enabled=1
+			and u.Enabled=1
+			<if test="className != null and className != ''">
+				AND c.Cname like concat
+				("%",#{className,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="majorName != null and majorName != ''">
+				AND m.major_name like concat
+				("%",#{majorName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="collegeName != null and collegeName != ''">
+				AND colleget.CeName like concat
+				("%",#{collegeName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="schoolName != null and schoolName != ''">
+				AND u.UnName like concat
+				("%",#{schoolName,jdbcType=VARCHAR},"%")
+			</if>
+		</where>
+	</select>
+
+	<select id="findByIdMany" resultType="ClassEntity"
+		parameterType="int">
+		select * from CLASSTABLE where Enabled=1 and MID =
+		#{major_id}
+	</select>
+
+</mapper> 

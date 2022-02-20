@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.SystemUserDao">
+	<resultMap id="UserResultMap" type="cn.youyitech.anyview.system.entity.SystemUser">
+		<id property="id" column="MID" />
+		<result property="username" column="MNo" />
+		<result property="password" column="MPsw" />
+		<result property="schoolId" column="UnID" />
+		<result property="roleId" column="MIden" />
+		<result property="isEnabled" column="Enabled" />
+		<result property="createdDate" column="CreateTime" />
+		<result property="lastUpdatedDate" column="UpdateTime" />
+		<result property="createdBy" column="Creater" />
+		<result property="lastUpdatedBy" column="Updater" />
+		<association property="school" column="UnID"
+			javaType="cn.youyitech.anyview.system.entity.School" select="cn.youyitech.anyview.system.dao.SchoolDao.findById">
+			<id property="id" column="UnID" />
+		</association>
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		MID, MNo, MPsw, NAME,
+		EMAIL,UnID,LOCKED_DATE,LOGIN_FAILURE_COUNT,
+		LAST_LOGIN_DATE,
+		LAST_LOGIN_IP,CreateTime, Creater,UpdateTime, Updater
+	</sql>
+
+	<sql id="base_value_column">
+		#{id}, #{username}, #{password}, #{name}, #{email},
+		#{schoolId}, #{lockedDate},#{loginFailureCount},
+		#{lastLoginDate},
+		#{lastLoginIp},now(), #{createdBy},
+		now(), #{lastUpdatedBy}
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		<if test="id != null">
+			AND MID = #{id}
+		</if>
+
+		<if test="username != null and username!=''">
+			AND MNo=(#{username})
+		</if>
+		<if test="name != null and name!=''">
+			AND NAME =(#{name})
+		</if>
+		<if test="password != null">
+			AND MPsw = #{password}
+		</if>
+
+		<if test="email != null">
+			AND EMAIL = #{email}
+		</if>
+		<if test="roleId != null and roleId !=''">
+			AND MIden = #{roleId}
+		</if>
+		<if test="schoolId != null">
+			AND UnID = #{schoolId}
+		</if>
+		<if test="isEnabled != null">
+			AND Enabled = #{isEnabled}
+		</if>
+		<if test="isLocked != null">
+			AND IS_LOCKED = #{isLocked}
+		</if>
+		<if test="lockedDate != null">
+			AND LOCKED_DATE = #{lockedDate}
+		</if>
+		<if test="loginFailureCount != null">
+			AND LOGIN_FAILURE_COUNT =
+			#{loginFailureCount}
+		</if>
+		<if test="lastLoginDate != null">
+			AND LAST_LOGIN_DATE = #{lastLoginDate}
+		</if>
+		<if test="lastLoginIp != null">
+			AND LAST_LOGIN_IP = #{lastLoginIp}
+		</if>
+
+		<if test="lastUpdatedDate != null">
+			AND UpdateTime =
+			#{lastUpdatedDate}
+		</if>
+		<if test="lastUpdatedBy != null">
+			AND Updater = #{lastUpdatedBy}
+		</if>
+
+
+	</sql>
+
+	<sql id="set_column">
+		<if test="id != null">
+			MID = #{id},
+		</if>
+		<if test="username != null and username != ''">
+			MNo = #{username},
+		</if>
+		<if test="password != null and password != ''">
+			MPsw = #{password},
+		</if>
+		<if test="name != null and name != ''">
+			NAME = #{name},
+		</if>
+		<if test="email != null and email != ''">
+			EMAIL = #{email},
+		</if>
+
+		<if test="schoolId != null">
+			UnID = #{schoolId},
+		</if>
+		<if test="isEnabled != null">
+			Enabled = #{isEnabled},
+		</if>
+
+		<if test="isLocked != null">
+			IS_LOCKED = #{isLocked},
+		</if>
+		<if test="lockedDate != null">
+			LOCKED_DATE = #{lockedDate},
+		</if>
+		<if test="loginFailureCount != null">
+			LOGIN_FAILURE_COUNT = #{loginFailureCount},
+		</if>
+		<if test="lastLoginDate != null">
+			LAST_LOGIN_DATE = #{lastLoginDate},
+		</if>
+		<if test="lastLoginIp != null">
+			LAST_LOGIN_IP = #{lastLoginIp},
+		</if>
+		<if test="createdDate != null">
+			CreateTime = #{createdDate},
+		</if>
+		<if test="createdBy != null">
+			Creater = #{createdBy},
+		</if>
+		<if test="lastUpdatedDate != null">
+			UpdateTime =now(),
+		</if>
+		<if test="lastUpdatedBy != null">
+			Updater = #{lastUpdatedBy},
+		</if>
+
+	</sql>
+
+	<select id="find" resultMap="UserResultMap">
+		SELECT * FROM ManagerTable
+		where
+		Enabled=1 and MID=#{id}
+	</select>
+
+	<!-- 不需要Enabled=1 -->
+	<select id="findAll" resultMap="UserResultMap">
+		SELECT * FROM ManagerTable 
+	</select>
+
+	<select id="findTotal" resultMap="UserResultMap">
+		SELECT * FROM ManagerTable
+	</select>
+
+	<select id="findByUserName" resultMap="UserResultMap">
+		SELECT * FROM ManagerTable
+		where Enabled=1 and MNo=#{username}
+	</select>
+
+	<select id="findByAttribute" parameterType="cn.youyitech.anyview.system.entity.SystemUser"
+		resultMap="UserResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM ManagerTable
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.SystemUser">
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="id">
+			SELECT LAST_INSERT_ID() AS MID
+		</selectKey>
+		INSERT INTO ManagerTable
+		(
+		<include refid="base_column" />
+		)
+		VALUES (
+		<include refid="base_value_column" />
+		)
+	</insert>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.SystemUser">
+		UPDATE ManagerTable
+		<set>
+			<include refid="set_column" />
+		</set>
+		WHERE MID = #{id}
+	</update>
+
+	<update id="delete" parameterType="Long">
+		update ManagerTable set
+		Enabled=0
+		where
+		MID =#{id}
+	</update>
+	<delete id="deleteAll">
+		DELETE FROM ManagerTable
+		WHERE MID IN
+		<foreach item="userId" collection="ids" open="(" separator=","
+			close=")">
+			#{userId}
+		</foreach>
+	</delete>
+
+	<update id="deleteByUserName">
+		update ManagerTable set
+		Enabled=0
+		where
+		MNo =#{username}
+	</update>
+
+	<select id="findByParams" resultMap="UserResultMap">
+		SELECT * FROM ManagerTable
+		<where>
+			Enabled=1 
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByEntity" resultMap="UserResultMap"
+		parameterType="cn.youyitech.anyview.system.entity.SystemUser">
+		SELECT * FROM ManagerTable
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<select id="findByPage" resultMap="UserResultMap">
+		SELECT m.* FROM ManagerTable m 
+		inner join UniversityTable u on m.UnID = u.UnID
+		where m.Enabled=1 and m.MIden=1 and u.Enabled=1
+		<if test="username != null and username!=''">
+			AND m.MNo like
+			concat('%',#{username},'%')
+		</if>
+		<if test="name != null and name!=''">
+			AND m.NAME like concat('%',#{name},'%')
+		</if>
+		<if test="schoolName != null and schoolName != ''">
+			AND u.UnName like concat
+			("%",#{schoolName,jdbcType=VARCHAR},"%")
+		</if>
+
+	</select>
+
+	<select id="findById" resultMap="UserResultMap" parameterType="Long">
+		select *from ManagerTable where MIden=#{roleId} and Enabled=1
+
+	</select>
+
+</mapper>

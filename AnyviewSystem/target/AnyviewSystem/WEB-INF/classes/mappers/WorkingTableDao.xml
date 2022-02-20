@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.youyitech.anyview.system.dao.WorkingTableDao">
+	<sql id="base_column">
+		VName , Kind,CourseID,Visit,totalTime,
+		Status,table_creater,CreateTime,table_updater,UpdateTime,FullScore,TotalNum
+	</sql>
+
+	<sql id="values_column">
+		#{tableName},#{tableType},#{courseId},#{tableLevel},#{totalTime},#{tableStatus},#{tableCreater},
+		now(),#{tableUpdater},now(),#{fullScore},#{totalNum}
+	</sql>
+
+	<sql id="set_column">
+		<if test="tableName != null and tableName != ''">
+			VName=#{tableName},
+		</if>
+		<if test="totalTime != null">
+			totalTime=#{totalTime},
+		</if>
+		<if test="tableType != null">
+			Kind=#{tableType},
+		</if>
+		<if test="courseId != null and courseId != ''">
+			CourseID=#{courseId},
+		</if>
+		<if test="tableLevel != null">
+			Visit=#{tableLevel},
+		</if>
+		<if test="tableStatus != null">
+			Status=#{tableStatus},
+		</if>
+		<if test="tableUpdater != null and tableUpdater != ''">
+			table_updater=#{tableUpdater},
+		</if>
+		<if test="tableUpdateTime != null and tableUpdateTime != ''">
+			UpdateTime=now(),
+		</if>
+		<if test="totalNum != null and totalNum != ''">
+			TotalNum=#{totalNum},
+		</if>
+	</sql>
+
+	<sql id="where_column">
+		<if test="tableName != null and tableName != ''">
+			and VName=#{tableName}
+		</if>
+
+		<if test="tableType != null and tableType != ''">
+			and Kind=#{tableType}
+		</if>
+		<if test="courseId != null and courseId != ''">
+			and CourseID=#{courseId}
+		</if>
+		<if test="courseIdList != null and courseIdList != ''">
+			and CourseID in
+			<foreach collection="courseIdList" open="(" close=")"
+				separator="," item="items">#{items} </foreach>
+		</if>
+		<if test="tableIdList != null and tableIdList != ''">
+			and VID in
+			<foreach collection="tableIdList" open="(" close=")"
+				separator="," item="items">#{items} </foreach>
+		</if>
+		<if test="tableLevel != null and tableLevel != ''">
+			and Visit=#{tableLevel}
+		</if>
+		<if test="tableStatus != null and tableStatus != ''">
+			and Status=#{tableStatus}
+		</if>
+		<if test="tableUpdater != null and tableUpdater != ''">
+			and table_updater=#{tableUpdater}
+		</if>
+		<if test="tableCreater != null and tableCreater != ''">
+			and table_creater=#{tableCreater}
+		</if>
+
+	</sql>
+
+	<resultMap type="cn.youyitech.anyview.system.entity.WorkingTable"
+		id="WorkingTableResult">
+		<id property="id" column="VID" />
+		<result property="tableName" column="VName" />
+		<result property="tableType" column="Kind" />
+		<result property="courseId" column="CourseID" />
+		<result property="tableLevel" column="Visit" />
+		<result property="tableStatus" column="Status" />
+		<result property="tableUpdateTime" column="UpdateTime" />
+		<result property="tableCreateTime" column="CreateTime" />
+		<result property="fullScore" column="FullScore" />
+		<result property="totalNum" column="TotalNum" />
+		<association property="course" column="CourseID"
+			javaType="cn.youyitech.anyview.system.entity.Course" select="cn.youyitech.anyview.system.dao.CourseDao.findByWork">
+			<id property="id" column="CourseID" />
+		</association>
+	</resultMap>
+
+	<resultMap type="cn.youyitech.anyview.system.entity.WorkingTable"
+		id="WorkingTableEntity">
+		<id property="id" column="VID" />
+		<result property="tableName" column="VName" />
+		<result property="tableType" column="Kind" />
+		<result property="courseId" column="CourseID" />
+		<result property="tableLevel" column="Visit" />
+		<result property="tableStatus" column="Status" />
+		<result property="tableUpdateTime" column="UpdateTime" />
+		<result property="tableCreateTime" column="CreateTime" />
+		<result property="fullScore" column="FullScore" />
+		<result property="totalNum" column="TotalNum" />
+	</resultMap>
+
+	<insert id="insert">
+		insert into SchemeTable (
+		<include refid="base_column"></include>
+		)
+		values (
+		<include refid="values_column"></include>
+		)
+	</insert>
+
+	<update id="update">
+		update SchemeTable
+		<set>
+			<include refid="set_column"></include>
+		</set>
+		where VID=#{id}
+	</update>
+
+	<select id="find" resultMap="WorkingTableResult">
+		select * from SchemeTable where
+		Enabled=1 and VID=#{id}
+	</select>
+
+	<select id="findAll" resultMap="WorkingTableResult">
+		select * from SchemeTable where
+		Enabled=1
+	</select>
+
+	<select id="findListByName" resultMap="WorkingTableResult"
+		parameterType="cn.youyitech.anyview.system.entity.WorkingTable">
+		select * from SchemeTable where Enabled=1
+		<if test="tableName != null and tableName != ''">
+			and VName like concat('%',#{tableName},'%')
+		</if>
+	</select>
+
+	<!-- <select id="findByPage" parameterType="cn.youyitech.anyview.system.entity.WorkingTable"
+		resultMap="WorkingTableResult">
+		select s.*,c.CeName,u.UnName,c1.CourseName from SchemeTable s
+		inner
+		join CourseTable c1 on c1.CourseID = s.CourseID
+		inner join CollegeTable c on c.CeID = c1.CeID
+		inner join UniversityTable u
+		on c.UnID = u.UnID
+		<where>
+			s.Enabled=1 and c.Enabled=1 and u.Enabled=1 and c1.Enabled=1
+			<include refid="where_column"></include>
+		</where>
+		<if test="tableName != null and tableName != ''">
+			and s.VName like concat('%',#{tableName},'%')
+		</if>
+		<if test="courseName != null and courseName != ''">
+			and c1.CourseName like concat('%',#{courseName},'%')
+		</if>
+		<if test="collegeName != null and collegeName != ''">
+			AND c.CeName like concat
+			("%",#{collegeName},"%")
+		</if>
+		<if test="schoolName != null and schoolName != ''">
+			AND u.UnName like concat
+			("%",#{schoolName},"%")
+		</if>
+		<if test="id != null and id != ''">
+			and m.id=#{id}
+		</if>
+		<if test="updaterSort == 'asc'">
+			ORDER BY CONVERT( s.table_updater USING gbk ) COLLATE
+			gbk_chinese_ci ASC;
+		</if>
+		<if test="updaterSort == 'desc'">
+			ORDER BY CONVERT( s.table_updater USING gbk ) COLLATE
+			gbk_chinese_ci DESC;
+		</if>
+
+	</select> -->
+
+	<select id="findContentList" parameterType="cn.youyitech.anyview.system.entity.WorkingTable"
+		resultMap="WorkingTableResult">
+		select s.*,c.CeName,u.UnName,c1.CourseName from SchemeTable s
+		inner
+		join CourseTable c1 on c1.CourseID = s.CourseID
+		inner join CollegeTable c on c.CeID = c1.CeID
+		inner join UniversityTable u
+		on c.UnID = u.UnID
+		<where>
+			s.Enabled=1 and c.Enabled=1 and u.Enabled=1 and c1.Enabled=1
+		</where>
+		<if test="tableName != null and tableName != ''">
+			and s.VName like concat('%',#{tableName},'%')
+		</if>
+		<if test="courseName != null and courseName != ''">
+			and c1.CourseName like concat('%',#{courseName},'%')
+		</if>
+		<if test="collegeName != null and collegeName != ''">
+			AND c.CeName like concat
+			("%",#{collegeName},"%")
+		</if>
+		<if test="schoolName != null and schoolName != ''">
+			AND u.UnName like concat
+			("%",#{schoolName},"%")
+		</if>
+		<if test="id != null and id != ''">
+			and m.id=#{id}
+		</if>
+		<if test="updaterSort == 'asc'">
+			ORDER BY CONVERT( s.table_updater USING gbk ) COLLATE
+			gbk_chinese_ci ASC;
+		</if>
+		<if test="updaterSort == 'desc'">
+			ORDER BY CONVERT( s.table_updater USING gbk ) COLLATE
+			gbk_chinese_ci DESC;
+		</if>
+		<if test="tableIdList != null and tableIdList != ''">
+			and VID in
+			<foreach collection="tableIdList" open="(" close=")"
+				separator="," item="items">#{items} </foreach>
+		</if>
+	</select>
+
+	<update id="delete">
+		update SchemeTable set Enabled=0 where VID=#{id}
+	</update>
+
+	<update id="updateTotalNum">
+		update SchemeTable set TotalNum=#{totalNum}
+		where VID=#{id}
+	</update>
+
+	<select id="findByParams" resultMap="WorkingTableResult">
+		select * from SchemeTable
+		<where>
+			Enabled=1
+			<include refid="where_column"></include>
+		</where>
+	</select>
+	<select id="findListById" parameterType="cn.youyitech.anyview.system.entity.WorkingTable"
+		resultMap="WorkingTableResult">
+		select * from SchemeTable
+		<where>
+			Enabled=1
+			<include refid="where_column"></include>
+		</where>
+		<if test="updaterSort == 'asc'">
+			ORDER BY CONVERT( table_updater USING gbk ) COLLATE
+			gbk_chinese_ci ASC;
+		</if>
+		<if test="updaterSort == 'desc'">
+			ORDER BY CONVERT( table_updater USING gbk ) COLLATE
+			gbk_chinese_ci DESC;
+		</if>
+	</select>
+	<select id="findContent" parameterType="cn.youyitech.anyview.system.entity.WorkingTable"
+		resultMap="WorkingTableResult">
+		select * from SchemeTable
+		<where>
+			Enabled=1
+			<include refid="where_column"></include>
+		</where>
+		<if test="updaterSort == 'asc'">
+			ORDER BY CONVERT( table_updater USING gbk ) COLLATE
+			gbk_chinese_ci ASC;
+		</if>
+		<if test="updaterSort=='desc'">
+			ORDER BY CONVERT( table_updater USING gbk ) COLLATE
+			gbk_chinese_ci DESC;
+		</if>
+	</select>
+</mapper>

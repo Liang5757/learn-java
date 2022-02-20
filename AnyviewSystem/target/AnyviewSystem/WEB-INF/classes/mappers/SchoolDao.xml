@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.youyitech.anyview.system.dao.SchoolDao">
+	<resultMap type="cn.youyitech.anyview.system.entity.School"
+		id="SchoolResult">
+		<!-- id主键手动装配 -->
+		<id property="id" column="UnID"></id>
+		<result property="id" column="UnID" />
+		<result property="schoolName" column="UnName" />
+		<result property="isDelete" column="Enabled" />
+		<result property="schoolCreateTime" column="CreateTime" />
+		<result property="schoolUpdateTime" column="UpdateTime" />
+		<result property="schoolUpdater" column="Updater" />
+		<result property="schoolCreater" column="Creater" />
+	</resultMap>
+
+	<resultMap type="cn.youyitech.anyview.system.entity.School"
+		id="findSchoolResult">
+		<!-- id主键手动装配 -->
+		<id property="id" column="UnID"></id>
+		<result property="id" column="UnID" />
+		<result property="schoolName" column="UnName" />
+		<result property="isDelete" column="Enabled" />
+		<result property="schoolCreateTime" column="CreateTime" />
+		<result property="schoolUpdateTime" column="UpdateTime" />
+		<result property="schoolUpdater" column="Updater" />
+		<result property="schoolCreater" column="Creater" />
+		<!-- 一对多 fType:集合里面的数据类型 -->
+		<collection property="schoolCollegeList" column="UnID"
+			javaType="java.util.ArrayList" ofType="cn.youyitech.anyview.system.entity.College"
+			select="cn.youyitech.anyview.system.dao.CollegeDao.findByIdMany">
+		</collection>
+	</resultMap>
+	
+	<resultMap type="cn.youyitech.anyview.system.entity.School"
+		id="excelResultMap">
+		<id property="id" column="UnID"></id>
+		<result property="id" column="UnID" />
+		<result property="schoolName" column="UnName" />
+	</resultMap>
+
+	<!-- 查询管理学校表 -->
+	<select id="findByPage" parameterType="cn.youyitech.anyview.system.entity.School"
+		resultMap="SchoolResult">
+		select * from UniversityTable where Enabled=1
+		<if test="schoolName!=null and schoolName!=''">
+			and UnName like concat('%',#{schoolName},'%')
+		</if>
+		<if test="id!=null and id!=''">
+			and UnID=#{id}
+		</if>
+		<if test="schoolNameSort == 'asc'">
+			ORDER BY CONVERT( UnName USING gbk ) COLLATE
+			gbk_chinese_ci ASC;
+		</if>
+		<if test="schoolNameSort == 'desc'">
+			ORDER BY CONVERT( UnName USING gbk ) COLLATE
+			gbk_chinese_ci DESC;
+		</if>
+	</select>
+
+	<!-- 插入管理学校数据 -->
+	<insert id="insert">
+		insert into UniversityTable
+		(Enabled,UnName,Updater,UpdateTime,Creater,CreateTime)
+		values
+		(#{isDelete},#{schoolName},#{schoolUpdater},now(),#{schoolCreater},now())
+	</insert>
+
+	<select id="findListByName" resultMap="SchoolResult"
+		parameterType="cn.youyitech.anyview.system.entity.School">
+		select * from UniversityTable where Enabled=1
+		<if test="schoolName != null and schoolName != ''">
+			and UnName like concat('%',#{schoolName},'%')
+		</if>
+	</select>
+
+	<!-- 修改管理学校数据 -->
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.School">
+		update UniversityTable set
+		UnName=#{schoolName},UpdateTime=now(),Updater=#{schoolUpdater}
+		where
+		UnID=#{id}
+	</update>
+
+	<!-- 删除管理学校 -->
+	<update id="delete" parameterType="Long">
+		update UniversityTable set
+		Enabled=0
+		where
+		UnID =#{id}
+	</update>
+
+	<!-- 根据主键查找学校 -->
+	<select id="findById" resultMap="SchoolResult" parameterType="int">
+		select * from UniversityTable where Enabled=1 and UnID = #{id}
+	</select>
+	<select id="findByDeleteId" resultMap="SchoolResult"
+		parameterType="Long">
+		select * from UniversityTable
+		where Enabled=1 and UnID =
+		#{id}
+	</select>
+
+	<select id="find" parameterType="Long" resultMap="findSchoolResult">
+		select *from
+		UniversityTable where Enabled=1 and UnID=#{id}
+	</select>
+	
+	<select id="findBySchoolName" parameterType="String" resultMap="excelResultMap">
+		select UnID,UnName from
+		UniversityTable where Enabled=1 and UnName=#{schoolName}
+	</select>
+
+	<select id="findAll" resultMap="SchoolResult">
+		select *from UniversityTable
+		where
+		Enabled=1
+	</select>
+
+	<select id="findNotIdList" resultMap="SchoolResult">
+		select *from UniversityTable where
+		Enabled=1
+		<if test="id != null and id != ''">
+			and UnID not in (#{id})
+		</if>
+	</select>
+
+	<select id="findByParams" resultMap="SchoolResult">
+		select *from UniversityTable where
+		Enabled=1
+		<if test="id != null and id != ''">
+			and UnID=#{id}
+		</if>
+		<if test="schoolName != null and schoolName != ''">
+			and UnName=#{schoolName}
+		</if>
+	</select>
+</mapper>

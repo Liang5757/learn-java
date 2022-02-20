@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.youyitech.anyview.system.dao.TeacherDao">
+
+	<resultMap id="TeacherResultMap" type="cn.youyitech.anyview.system.entity.Teacher">
+		<id property="id" column="TID" />
+		<result property="college_id" column="CID" />
+		<result property="sex" column="TSex" />
+		<result property="username" column="TNo" />
+		<result property="enabled" column="Enabled" />
+		<result property="password" column="TPsw" />
+		<result property="name" column="TName" />
+		<result property="schoolId" column="UnID" />
+		<result property="createdDate" column="CreateTime" />
+		<result property="lastUpdatedDate" column="UpdateTime" />
+		<result property="createdBy" column="Creater" />
+		<result property="lastUpdatedBy" column="Updater" />
+		<result property="roleId" column="RoleId" />
+		<result property="email" column="EMAIL" />
+		
+		<association property="school" column="UnID"
+			javaType="cn.youyitech.anyview.system.entity.School" select="cn.youyitech.anyview.system.dao.SchoolDao.findById">
+			<id property="id" column="UnID" />
+		</association>
+
+		<association property="college" column="CID" javaType="College"
+			select="cn.youyitech.anyview.system.dao.CollegeDao.findById">
+			<id property="id" column="CeID" />
+		</association>
+
+	</resultMap>
+
+	<resultMap id="TeacherEntity" type="cn.youyitech.anyview.system.entity.Teacher">
+		<id property="id" column="TID" />
+		<result property="college_id" column="CID" />
+		<result property="sex" column="TSex" />
+		<result property="username" column="TNo" />
+		<result property="enabled" column="Enabled" />
+
+	</resultMap>
+
+	<!-- 定义可重用的SQL代码段，可以包含在其他语句中 -->
+	<sql id="base_column">
+		TID ,TSex , CID ,TNo,Enabled,TPsw,TName,UnID,
+		IS_LOCKED,
+		LOCKED_DATE,
+		LOGIN_FAILURE_COUNT,
+		LAST_LOGIN_DATE, LAST_LOGIN_IP,
+		CreateTime, Creater,
+		UpdateTime, Updater,RoleId,EMAIL
+	</sql>
+
+	<sql id="base_value_column">
+		#{id},#{sex}
+		,#{college_id},#{username},#{enabled},#{password},#{name},#{schoolId},
+		#{isLocked}, #{lockedDate},
+		#{loginFailureCount}, #{lastLoginDate},
+		#{lastLoginIp},
+		#{createdDate}, #{createdBy},
+		#{lastUpdatedDate},
+		#{lastUpdatedBy}, #{roleId}, #{email}
+	</sql>
+
+	<!-- 定义可重用的WHERE SQL公共代码段，可以包含在其他语句中 -->
+	<sql id="where_column">
+		<if test="id != null and id != ''">
+			AND TEACHERTABLE.TID = #{id}
+		</if>
+
+		<if test="sex != null and sex != ''">
+			AND TEACHERTABLE.TSex = #{sex,jdbcType=VARCHAR}
+		</if>
+		<if test="college_id != null and college_id != ''">
+			AND TEACHERTABLE.CID = #{college_id}
+		</if>
+		<if test="username != null and username != ''">
+			AND TEACHERTABLE.TNo = #{username,jdbcType=VARCHAR}
+		</if>
+		<if test="password != null and password != ''">
+			AND TEACHERTABLE.TPsw = #{password}
+		</if>
+		<if test="name != null and name != ''">
+			AND TEACHERTABLE.TName = #{name}
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			AND TEACHERTABLE.UnID = #{schoolId}
+		</if>
+		<if test="isLocked != null">
+			AND TEACHERTABLE.IS_LOCKED = #{isLocked}
+		</if>
+		<if test="lockedDate != null">
+			AND TEACHERTABLE.LOCKED_DATE = #{lockedDate}
+		</if>
+		<if test="loginFailureCount != null">
+			AND TEACHERTABLE.LOGIN_FAILURE_COUNT =
+			#{loginFailureCount}
+		</if>
+		<if test="lastLoginDate != null">
+			AND TEACHERTABLE.LAST_LOGIN_DATE = #{lastLoginDate}
+		</if>
+		<if test="lastLoginIp != null">
+			AND TEACHERTABLE.LAST_LOGIN_IP = #{lastLoginIp}
+		</if>
+		<if test="createdDate != null">
+			AND TEACHERTABLE.CreateTime = #{createdDate}
+		</if>
+		<if test="createdBy != null">
+			AND TEACHERTABLE.Creater = #{createdBy}
+		</if>
+		<if test="lastUpdatedDate != null">
+			AND TEACHERTABLE.UpdateTime =
+			#{lastUpdatedDate}
+		</if>
+		<if test="lastUpdatedBy != null">
+			AND TEACHERTABLE.Updater = #{lastUpdatedBy}
+		</if>
+		<if test="roleId != null">
+			AND TEACHERTABLE.RoleId = #{roleId}
+		</if>
+		<if test="email != null">
+			AND TEACHERTABLE.EMAIL = #{email}
+		</if>
+	</sql>
+
+	<sql id="set_column">
+		<if test="id != null">
+			TID = #{id},
+		</if>
+		<if test="sex != null">
+			TSex = #{sex,jdbcType=VARCHAR},
+		</if>
+		<if test="college_id != null">
+			CID = #{college_id},
+		</if>
+		<if test="username != null and username != ''">
+			TNo = #{username,jdbcType=VARCHAR},
+		</if>
+		<if test="password != null and password != ''">
+			TPsw = #{password},
+		</if>
+		<if test="name != null and name != ''">
+			TName = #{name},
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			UnID = #{schoolId},
+		</if>
+		<if test="isLocked != null">
+			IS_LOCKED = #{isLocked},
+		</if>
+		<if test="lockedDate != null">
+			LOCKED_DATE = #{lockedDate},
+		</if>
+		<if test="loginFailureCount != null">
+			LOGIN_FAILURE_COUNT = #{loginFailureCount},
+		</if>
+		<if test="lastLoginDate != null">
+			LAST_LOGIN_DATE = #{lastLoginDate},
+		</if>
+		<if test="lastLoginIp != null">
+			LAST_LOGIN_IP = #{lastLoginIp},
+		</if>
+		<if test="createdDate != null">
+			CreateTime = #{createdDate},
+		</if>
+		<if test="createdBy != null">
+			Creater = #{createdBy},
+		</if>
+		<if test="lastUpdatedDate != null">
+			UpdateTime =#{lastUpdatedDate},
+		</if>
+		<if test="lastUpdatedBy != null">
+			Updater = #{lastUpdatedBy},
+		</if>
+		<if test="roleId != null">
+			RoleId = #{roleId},
+		</if>
+		<if test="email != null">
+			EMAIL = #{email},
+		</if>
+	</sql>
+	<select id="findByEntity" resultMap="TeacherResultMap"
+		parameterType="cn.youyitech.anyview.system.entity.Teacher">
+		SELECT * from TEACHERTABLE
+		where Enabled=1
+		<if test="username != null and username != ''">
+			AND TNo = #{username}
+		</if>
+		<if test="roleId != null and roleId != ''">
+			AND RoleId = #{roleId}
+		</if>
+		<if test="email != null and email != ''">
+			AND EMAIL = #{email}
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			AND UnID = #{schoolId}
+		</if>
+	</select>
+
+	<select id="find" resultMap="TeacherResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM TEACHERTABLE
+		WHERE Enabled=1 and TID=#{id}
+	</select>
+
+	<select id="findWorkById" parameterType="int" resultMap="TeacherEntity">
+		select *
+		from TEACHERTABLE
+		where Enabled=1 and TID = #{id}
+	</select>
+
+	<select id="findByUserName" parameterType="cn.youyitech.anyview.system.entity.Teacher" 
+			resultMap="TeacherResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM TEACHERTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+
+
+		<!-- 此处不要加Enabled=1 -->
+	<select id="findAll" resultMap="TeacherResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM TEACHERTABLE
+	</select>
+
+	<select id="findTotal" resultMap="TeacherResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM TEACHERTABLE
+	</select>
+	
+	<select id="findByAttribute" parameterType="cn.youyitech.anyview.system.entity.Teacher"
+			resultMap="TeacherResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM TEACHERTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="cn.youyitech.anyview.system.entity.Teacher">
+		INSERT INTO TEACHERTABLE
+		(
+		<include refid="base_column" />
+		)
+		VALUES (
+		<include refid="base_value_column" />
+		)
+	</insert>
+
+	<update id="update" parameterType="cn.youyitech.anyview.system.entity.Teacher">
+		UPDATE TEACHERTABLE
+		<set>
+			<include refid="set_column" />
+		</set>
+		WHERE TID = #{id}
+	</update>
+
+	<update id="delete" parameterType="Long">
+		update TEACHERTABLE set
+		Enabled=0
+		where
+		TID =#{id}
+	</update>
+
+	<delete id="deleteAll">
+		DELETE FROM TEACHERTABLE
+		WHERE TID IN
+		<foreach item="teacherId" index="index" collection="ids" open="("
+			separator="," close=")">
+			#{teacherId}
+		</foreach>
+	</delete>
+
+	<select id="findByParams" resultMap="TeacherResultMap">
+		SELECT
+		<include refid="base_column" />
+		FROM TEACHERTABLE
+		<where>
+			Enabled=1
+			<include refid="where_column" />
+		</where>
+	</select>
+
+
+	<select id="findByPage" resultMap="TeacherResultMap">
+		SELECT t.TID ,t.TSex , t.CID ,t.TNo,t.TName,t.UnID,
+		t.CreateTime, t.Creater,
+		t.UpdateTime, t.Updater,t.EMAIL FROM TEACHERTABLE t
+		inner join UniversityTable u on t.UnID = u.UnID
+		inner join CollegeTable c on c.CeID = t.CID
+		<where>
+			t.Enabled=1 and u.Enabled=1 and c.Enabled=1
+			<if test="username != null and username != ''">
+				AND t.TNo like concat
+				("%",#{username,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="name != null and name != ''">
+				AND t.TName like concat ("%",#{name,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="schoolName != null and schoolName != ''">
+				AND u.UnName like concat
+				("%",#{schoolName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="collegeName != null and collegeName != ''">
+				AND c.CeName like concat
+				("%",#{collegeName,jdbcType=VARCHAR},"%")
+			</if>
+			<if test="schoolId!=null and schoolId!=''">
+				and t.UnID=#{schoolId}
+			</if>
+
+		</where>
+	</select>
+
+	<select id="findByIdMany" resultMap="TeacherResultMap"
+		parameterType="int">
+		select * from TEACHERTABLE where Enabled=1 and CID =
+		#{college_id}
+	</select>
+	<!-- <update id="UpdatePassByUserName" parameterType="cn.youyitech.anyview.system.entity.Teacher"> 
+		update TEACHERTABLE set TPsw=#{password} where TNo=#{username} </update> -->
+</mapper> 
